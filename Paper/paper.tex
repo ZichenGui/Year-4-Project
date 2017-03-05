@@ -1,0 +1,96 @@
+\documentclass[10pt]{article}
+\setlength{\parindent}{0em}
+\setlength{\parskip}{1em}
+
+\usepackage[n, advantage, operators, sets, adversary, landau, probability, notions, logic, ff, mm, primitives, events, complexity, asymptotics, keys] {cryptocode}
+
+\begin{document}
+\section{Problem formulation}
+Let $D$ be a two-dimensional table that supports the following operations:
+\begin{itemize}
+\item \textbf{Insert: } add a new row to the table.
+\item \textbf{Delete: } remove a row from the table.
+\item \textbf{Lookup: } find rows in the table that contains some keyword given as the input to the \textit{lookup} function.
+\end{itemize}
+
+Further, we assume that $D$ has $n$ columns, with $S_i$ the set possible attributes in the $i$-th column. We call $D$ a database.
+
+Our goal is to construct a cryptographic database $D$ that is secure when out-sourced: no dishonest third-party server should be able to decrypt the database. We also want the database to be efficient on the operations above. In particular, we want \textit{lookup($\cdot$)} to be sub-linear time.
+
+
+\section{Constructions}
+Without loss of generality, we assume that $D$ has $n-1$ columns of actual entries. The $n$-th column is an auxiliary column that indicates if the corresponding row is genuine or fake.
+
+The message to be encrypted is denoted as $m = (m_1, m_2,..., m_{n-1})$. So $m_i$ is the plaintext for the $i$-th column for this particular message. As a short hand, we write $\text{Enc}(m, \pk) = (\text{Enc}(m_1, \pk), \text{Enc}(m_2, \pk),...,\text{Enc}(m_{n-1}, \pk))$ to be the encryption scheme Enc applied to the message under public key \pk.
+
+We write $(D, C)$ to mean insertion of $C$ (as rows) into the database $D$, and $C \concat x$ to mean concatenation of column $x$ to $C$.
+
+For the constructions below, we encrypt the first $n-1$ columns deterministically. The auxiliary column is encrypted using a probabilistic encryption scheme.
+
+Let DE = ($\text{Kg}_1, \text{Enc}_1, \text{Dec}_1$) be the deterministic encryption scheme and PKE = ($\text{Kg}_2, \text{Enc}_2, \text{Dec}_2$) be the probabilistic encryption scheme. Let $rand(C)$ be a function that shuffles rows of $C$. We define the following encryption schemes for databases.
+
+\subsection{Exponential-space construction}
+
+\begin{pcvstack}[center]
+\begin{pchstack}
+\procedure[linenumbering]{Key Generation$(1^n)$}{%
+(\pk_1, \sk_1) \gets \text{Kg}_1(1^n) \\
+(\pk_2, \sk_2) \gets \text{Kg}_2(1^n) \\
+\pk \gets (\pk_1, \pk_2) \\
+\sk \gets (\sk_1, \sk_2)
+}
+
+\pchspace
+\procedure[linenumbering]{Insert$(m)$}{%
+(\pk_1, \pk_2) \gets \pk \\
+\pcfor x \in S_1 \times S_2 \times ... \times S_{n-1} \\
+\t \pcif x = m \\
+\t \t D \gets (D, (\text{Enc}_1(m, \pk_1) \concat \text{Enc}_2(True, \pk_2))) \\
+\t \pcelse \\
+\t \t D \gets (D, (\text{Enc}_1(x, \pk_1) \concat \text{Enc}_2(False, \pk_2)))
+}
+\end{pchstack}
+
+\pcvspace
+\begin{pchstack}
+\procedure[linenumbering]{Decrypt$(D)$}{%
+(\sk_1, \sk_2) \gets \sk \\
+m \gets () \\
+\pcfor c \text{ in } D \\
+\t \pcparse c \text{ as } \bar{c} || x \\
+\t \pcif \text{Dec}_2(x, \sk_2) = True \\
+\t \t m \gets (m, \text{Dec}_1(c)) \\
+\pcreturn m
+}
+
+\pchspace
+\procedure[linenumbering]{lookup$(c, i)$}{%
+r \gets () \\
+\pcfor c \text{ in } D \\
+\t \pcif c_i = c \\
+\t \t r \gets (r,c) \\
+\pcreturn r
+}
+\end{pchstack}
+\end{pcvstack}
+
+
+
+
+\section{Security notions}
+\subsection{Indistinguishability of distributions}
+
+
+
+
+\subsection{Indistinguishability of plaintext (1)}
+
+
+
+
+\subsection{Indistinguishability of plaintext (2)}
+
+
+
+
+\end{document}
