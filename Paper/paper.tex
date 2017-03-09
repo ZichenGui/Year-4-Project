@@ -1,0 +1,361 @@
+\documentclass[10pt]{article}
+\setlength{\parindent}{0em}
+\setlength{\parskip}{1em}
+
+\usepackage{amsmath,amsthm}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{framed}
+\usepackage[n, advantage, operators, sets, adversary, landau, probability, notions, logic, ff, mm, primitives, events, complexity, asymptotics, keys] {cryptocode}
+
+
+
+
+
+\begin{document}
+\section{Problem formulation}
+Let $D$ be a two-dimensional table that supports the following operations:
+\begin{itemize}
+\item \textbf{Insert: } add a new row to the table.
+\item \textbf{Delete: } remove a row from the table.
+\item \textbf{Lookup: } find rows in the table that contains some keyword given as the input to the \textit{lookup} function.
+\end{itemize}
+
+Further, we assume that $D$ has $n$ columns, with $S_i$ the set possible attributes in the $i$-th column. We call $D$ a database.
+
+Our goal is to construct a cryptographic database $D$ that is secure when out-sourced: no dishonest third-party server should be able to decrypt the database. We also want the database to be efficient on the operations above. In particular, we want \textit{lookup($\cdot$)} to be sub-linear time.
+
+
+\section{Constructions}
+Without loss of generality, we assume that $D$ has $n-1$ columns of actual entries. The $n$-th column is an auxiliary column that indicates if the corresponding row is genuine or fake.
+
+The message to be encrypted is denoted as $m = (m_1, m_2,..., m_{n-1})$. So $m_i$ is the plaintext for the $i$-th column for this particular message. As a short hand, we write $\text{Enc}(m, \pk) = (\text{Enc}(m_1, \pk), \text{Enc}(m_2, \pk),...,\text{Enc}(m_{n-1}, \pk))$ to be the encryption scheme Enc applied to the message under public key \pk.
+
+We write $(D, C)$ to mean insertion of $C$ (as rows) into the database $D$, and $C \concat x$ to mean concatenation of column $x$ to $C$.
+
+For the constructions below, we encrypt the first $n-1$ columns deterministically. The auxiliary column is encrypted using a probabilistic encryption scheme.
+
+Let DE = ($\text{Kg}_1, \text{Enc}_1, \text{Dec}_1$) be the deterministic encryption scheme and PKE = ($\text{Kg}_2, \text{Enc}_2, \text{Dec}_2$) be the probabilistic encryption scheme. Let $rand(C)$ be a function that shuffles rows of $C$. We define the following encryption schemes for databases.
+
+\subsection{Exponential-space construction}
+
+\begin{pcvstack}[center]
+\begin{pchstack}
+\procedure[linenumbering]{Key Generation$(1^n)$}{%
+(\pk_1, \sk_1) \gets \text{Kg}_1(1^n) \\
+(\pk_2, \sk_2) \gets \text{Kg}_2(1^n) \\
+\pk \gets (\pk_1, \pk_2) \\
+\sk \gets (\sk_1, \sk_2)
+}
+
+\pchspace
+\procedure[linenumbering]{Insert$(m)$}{%
+(\pk_1, \pk_2) \gets \pk \\
+\pcfor x \in S_1 \times S_2 \times ... \times S_{n-1} \\
+\t \pcif x = m \\
+\t \t D \gets (D, (\text{Enc}_1(m, \pk_1) \concat \text{Enc}_2(True, \pk_2))) \\
+\t \pcelse \\
+\t \t D \gets (D, (\text{Enc}_1(x, \pk_1) \concat \text{Enc}_2(False, \pk_2)))
+}
+\end{pchstack}
+
+\pcvspace
+\begin{pchstack}
+\procedure[linenumbering]{Decrypt$(D)$}{%
+(\sk_1, \sk_2) \gets \sk \\
+m \gets () \\
+\pcfor c \text{ in } D \\
+\t \pcparse c \text{ as } \bar{c} || x \\
+\t \pcif \text{Dec}_2(x, \sk_2) = True \\
+\t \t m \gets (m, \text{Dec}_1(c)) \\
+\pcreturn m
+}
+
+\pchspace
+\procedure[linenumbering]{lookup$(c, i)$}{%
+r \gets () \\
+\pcfor c \text{ in } D \\
+\t \pcif c_i = c \\
+\t \t r \gets (r,c) \\
+\pcreturn r
+}
+\end{pchstack}
+\end{pcvstack}
+
+
+
+
+\section{Security notions}
+\subsection{Indistinguishability of distributions}
+One way to define security notion for deterministic encryption on databases is to consider indistinguishability of input distributions. Suppose that we tell the adversary that the underlying plaintext is from one of the two distributions, he should not be able to tell which one of the distribution the database is from with significant advantage.
+
+Let $\Pi_0$ and $\Pi_1$ be two distinct streams of the plaintext of equal size, and b $\sample \{0,1\}$ by the challenger, we establish the following game:
+
+\begin{figure}[H]
+\begin{center}
+\begin{bbrenv}{A}
+\begin{bbrbox}[name = Adversary, minheight=3.5cm, minwidth = 2.5cm]
+\end{bbrbox}
+
+\bbrmsgfrom{top = $\Pi_0\text{, }\Pi_1$, length = 2cm}
+\bbrmsgspace{1cm}
+\bbrmsgto{top = $Enc(\Pi_b)$, side = $b \sample \{0 \text{, } 1\}$, length = 2cm}
+\bbrmsgspace{1cm}
+\bbrmsgfrom{top = $b'$, length = 2cm}
+
+
+\begin{bbroracle}{Oracle}
+\begin{bbrbox}[name = Encryption, minheight = 1cm]
+\end{bbrbox}
+\end{bbroracle}
+\bbroracleqryspace{0.1cm}
+\bbroracleqryto{top = $m$}
+\bbroracleqryspace{0.5cm}
+\bbroracleqryfrom{bottom = $c$}
+\end{bbrenv}
+
+\caption{IND of distributions}
+\end{center}
+\end{figure}
+
+Description of the game:
+\begin{enumerate}
+\item The adversary and the challenger agree on the set of plaintexts.
+\item The adversary generates two streams of plaintexts of equal length and sends them to the challenger.
+\item The challenger randomly samples the guess bit $b$ from $\{0,1\}$ and encrypts $\Pi_b$ using some encryption algorithm. The result is sent back to the adversary.
+\item The adversary has to guess if the encryption comes from $\Pi_0$ or $\Pi_1$ and outputs his guess bit $b'$ (in polynomial time). For a CPA adversary, he has access to an encryption oracle that can encrypt any message he wants other than the set of plaintexts he agrees with the challenger. In case of a CCA adversary, he also has access to a decryption oracle.
+\end{enumerate}
+
+
+
+
+\subsection{Unidentifiability of plaintext}
+One advantage of using DE is that when making queries (to third-party database server), one does not need to disclose the underlying plaintext. So we need to make sure that the database itself does not leak any information about the underlying plaintext.
+
+In terms of security goal, DE on databases operates on a very different environment as compared to classic cryptographic protocols. There is no reason to assume that the adversary does not know about the set of underlying plaintext, and if he does, the minimal probability of him making a right guess of a plaintext-ciphertext pair is one over the number of plaintexts. In this security model, we require the success probability of the adversary in guessing the right plaintext-ciphertext pair to not be significantly larger than one over the number of plaintexts.
+
+\begin{figure}[H]
+\begin{center}
+\begin{bbrenv}{A}
+\begin{bbrbox}[name = Adversary, minheight=3.5cm, minwidth = 2.5cm]
+\end{bbrbox}
+		
+\bbrmsgfrom{top = $\Pi$, length = 2cm}
+\bbrmsgspace{1cm}
+\bbrmsgto{top = $Enc(\Pi)$, length = 2cm}
+\bbrmsgspace{1cm}
+\bbrmsgfrom{top = $(m\text{, }c)$, length = 2cm}
+		
+		
+\begin{bbroracle}{Oracle}
+\begin{bbrbox}[name = Encryption, minheight = 1cm]
+\end{bbrbox}
+\end{bbroracle}
+\bbroracleqryspace{0.1cm}
+\bbroracleqryto{top = $m$}
+\bbroracleqryspace{0.5cm}
+\bbroracleqryfrom{bottom = $c$}
+\end{bbrenv}
+	
+\caption{Unidentifiability of plaintext}
+\end{center}
+\end{figure}
+
+Description of the game:
+\begin{enumerate}
+\item The adversary and the challenger agree on the set of plaintexts.
+\item The adversary generates a stream of plaintexts and send it to the challenger.
+\item The challenger encrypts the plaintexts with some encryption scheme and send it to the adversary.
+\item The goal of the adversary is to return a valid pair of plaintext and ciphertext in polynomial time. For a CPA adversary, he has access to an encryption oracle that can encrypt any message he wants other than the set of plaintexts he agrees with the challenger. In case of a CCA adversary, he also has access to a decryption oracle.
+\end{enumerate}
+
+
+
+
+
+\subsection{Indistinguishability of plaintext}
+On a lower level, we want to analyse IND property of individual plaintexts. This security definition is very similar to the classical IND game except that the encryption is no longer a single ciphertext. Similar to the standard IND game, $b$ is randomly generated from $\{0,1\}$ by the challenger.
+
+\begin{figure}[H]
+\begin{center}
+\begin{bbrenv}{A}
+\begin{bbrbox}[name = Adversary, minheight=3.5cm, minwidth = 2.5cm]
+\end{bbrbox}
+			
+\bbrmsgfrom{top = $m_0 \text{, }m_1$, length = 2cm}
+\bbrmsgspace{1cm}
+\bbrmsgto{top = $Enc(m_b)$, side = $b \sample \{0\text{, }1\}$, length = 2cm}
+\bbrmsgspace{1cm}
+\bbrmsgfrom{top = $b'$, length = 2cm}
+			
+			
+\begin{bbroracle}{Oracle}
+\begin{bbrbox}[name = Encryption, minheight = 1cm]
+\end{bbrbox}
+\end{bbroracle}
+\bbroracleqryspace{0.1cm}
+\bbroracleqryto{top = $m$}
+\bbroracleqryspace{0.5cm}
+\bbroracleqryfrom{bottom = $c$}
+\end{bbrenv}
+		
+\caption{IND of plaintext}
+\end{center}
+\end{figure}
+
+
+
+\section{Security proofs}
+\subsection{Unidentifiability of plaintext}
+
+
+
+
+
+
+
+\subsection{Indistinguishability of plaintext}
+Suppose now that we are working with the deterministic padding scheme. We wish to prove that the scheme is secure under IND of plaintext. Let us denote the adversary by A, who's input is encryption of $m_b$, then the scheme is secure if and only if the advantage:
+\begin{center}
+	$\advantage{}{\adv} = \abs{\probsub{b \gets 0}{A(Enc_\pk(m_b)) = 0} - \probsub{b \gets 1}{A(Enc_\pk(m_b)) = 0}}$
+\end{center}
+is negligible for all adversaries A and public keys \pk.
+
+This IND is computational in nature and it is no different from PRGs, so we are essentially trying to prove that $Enc_\pk(m_0) \sim Enc_\pk(m_1)$. This can be proven with a hybrid argument:
+
+\begin{figure}[H]
+\begin{minipage}[center]{0.25\linewidth}
+\begin{framed}
+$Enc(m_0)$\\
+\end{framed}
+(1) Encryption of message $m_0$ \\
+\end{minipage}
+\hfill
+{\Huge{$\sim$}}
+\hfill
+\begin{minipage}[center]{0.35\linewidth}
+\begin{framed}
+$Enc_1(S_1 \times S_2 \times ... \times S_{n-1}) || \{Enc_2(False)\}$
+\end{framed}
+(2) Encryption of message $m_0$ with its auxiliary column set to false
+\end{minipage}
+\hfill
+{\Huge{$\sim$}}
+\hfill
+\begin{minipage}[center]{0.25\linewidth}
+\begin{framed}
+$Enc(m_1)$\\
+\end{framed}
+(3) Encryption of message $m_1$  \\
+\end{minipage}
+
+\caption{Hybrid structure of the proof}
+\label{Hybrid1}
+\end{figure}
+
+In the figure above, we have omitted the public keys in the notation. By $Enc_1(S_1 \times S_2 \times ... \times S_{n-1}) || \{Enc_2(False)\}$, we really mean the set 
+\begin{center}
+$\{x || Enc_2(False) \mid x \in S_1 \times S_2 \times ... \times S_{n-1}\}$,
+\end{center}
+where each row of the auxiliary column receives a fresh encryption of the flag.
+
+\textbf{Proof of (1) $\sim$ (2): } By definition, the first n-1 columns of $Enc(m_0)$ are identical to that of (2) so distinguishability relies completely on the auxiliary column. We claim that if the underlying encryption scheme $Enc_2(\cdot)$ is IND-CPA (or IND-CCA) secure, then the two auxiliary columns are indistinguishable.
+
+\textbf{Proof of the claim: } We prove the claim by reduction. Suppose otherwise that we can distinguish the two auxiliary columns with a distinguisher $D$ (which outputs 0 if the column contains an encryption of $True$), and our goal is to break the security of $Enc_2(\cdot)$. We establish the adversary $A$ against $Enc_2(\cdot)$ as follows:
+
+\begin{figure}[H]
+	\begin{center}
+		\procedure[linenumbering]{Adversary $A$}{%
+		m_0 \gets True \\
+		m_1 \gets False \\
+		b \sample \{0, 1\} \\
+		c \gets Enc_2(m_b) \\
+		L \gets (c) \\
+		\pcfor i = 1 ... \abs{S_1 \times S_2, ... \times S_{n-1}}: \\
+		\pcind L \gets (L, Enc_2(False)) \\
+		b' \gets D(L) \\
+		\pcreturn b'
+		}
+		\caption{Adversary $A$ against $Enc_2(\cdot)$}
+	\end{center}
+\end{figure}
+
+It is straightforward that $\probsub{b \gets 0}{0 \gets A} = \probsub{b \gets 0}{0 \gets D(L)}$ and $\probsub{b \gets 1}{0 \gets A} = \probsub{b \gets 1}{0 \gets D(L)}$. In particular, the advantage of $A$ is
+\begin{center}
+$\abs{\probsub{b \gets 0}{0 \gets A} - \probsub{b \gets 1}{0 \gets A}} = \abs{\probsub{b \gets 0}{0 \gets D(L)} - \probsub{b \gets 1}{0 \gets D(L)}}$
+\end{center}
+which is significant by our assumption. So IND-CPA security of $Enc_2(\cdot)$ guarantees the indistinguishability of (1) and (2).
+
+\textbf{Proof of (2) $\sim$ (3): } The prove above uses arbitrary $m_0$ so the statement is true for all messages. In particular, it is true for $m_1$. Whence, we conclude that (2) $\sim$ (3).
+
+\textbf{Conclusion: } By combining the results above, we have shown that (1) $\sim$ (2) $\sim$ (3). Thus, (1) $\sim$ (3). \qed
+
+On a side note, the proof above has not used any property of $Enc_1(\cdot)$. In fact, this security notion is valid even if $Enc_1(\cdot) = id(\cdot)$, i.e. we do not encrypt the plaintext at all.
+
+It is important to note that IND of plaintext does not imply IND of distribution. Specifically, the naive DE satisfies this definition of security but it is not secure under IND of distributions, as demonstrated by frequency attack.
+
+
+
+
+\subsection{Indistinguishability of distributions}
+Indistinguishability of distributions can be proven the exact same way as of figure \ref{Hybrid1} for the full padding scheme.
+
+\textbf{Proof: } Suppose that $\Pi_0$ and $\Pi_1$ are two streams of input plaintext with length k, we adapt the hybrid argument as:
+\begin{figure}[H]
+	\begin{minipage}[center]{0.25\linewidth}
+		\begin{framed}
+			$Enc(\Pi_0)$\\
+		\end{framed}
+		(1) Encryption of plaintext stream $\Pi_0$ \\
+	\end{minipage}
+	\hfill
+	{\Huge{$\sim$}}
+	\hfill
+	\begin{minipage}[center]{0.35\linewidth}
+		\begin{framed}
+			$(Enc_1(S_1 \times S_2 \times ... \times S_{n-1}) || \{Enc_2(False)\})^k$
+		\end{framed}
+		(2) Encryption of plaintext stream $\Pi_0$ with its auxiliary column set to false
+	\end{minipage}
+	\hfill
+	{\Huge{$\sim$}}
+	\hfill
+	\begin{minipage}[center]{0.25\linewidth}
+		\begin{framed}
+			$Enc(\Pi_1)$\\
+		\end{framed}
+		(3) Encryption of plaintext stream $\Pi_1$  \\
+	\end{minipage}
+	
+	\caption{Hybrid structure of the proof}
+	\label{Hybrid2}
+\end{figure}
+
+In the notation, we write $(Enc_1(S_1 \times S_2 \times ... \times S_{n-1}) || \{Enc_2(False)\})^k$ for k copies of $Enc_1(S_1 \times S_2 \times ... \times S_{n-1}) || \{Enc_2(False)\}$ with fresh encryptions of \textit{False} for all rows as a joint database.
+
+Similar to the proof of IND of plaintext, the first n-1 columns of (1) and (2) are identical so IND property is completely determined by the auxiliary column. By construction, the auxiliary column can be divided into blocks of size $\abs{S_1 \times S_2 \times ... \times S_{n-1}}$ each, corresponding to each of the messages in the plaintext stream. Because we already know that IND-CPA security of $Enc_2(\cdot)$ implies IND of the auxiliary columns for single messages, it suffices to prove that the later implies IND of the auxiliary columns for any message stream.
+
+\textbf{Proof of the claim: } We proceed by reduction. Suppose otherwise that the auxiliary columns for messages streams can be distinguished, and suppose $D$ is a distinguisher, we want to show that $D$ can be used to construct an adversary $A$ against the auxiliary column for single messages. But by construction, the message stream can be a single message, so the distinguisher $D$ can be used directly to construct $A$:
+\begin{figure}[H]
+	\begin{center}
+		\procedure[linenumbering]{Adversary $A(L)$}{%
+			b' \gets D(L) \\
+			\pcreturn b'
+		}
+		\caption{Adversary $A$ against auxiliary column for single messages}
+	\end{center}
+\end{figure}
+
+Thus, the probability of $A$ succeeding equals to that of $D$, which is clearly not negligible. This proves the claim as desired.
+
+Further, our choice of message stream $\Pi_0$ in the proof is arbitrary, so the statement holds for all message streams (of the same length as $\Pi_0$). Hence, we conclude that (2) $\sim$ (3). Therefore, (1) $\sim$ (3) as required by the security notion. \qed
+
+
+
+
+
+
+
+
+
+\end{document}
