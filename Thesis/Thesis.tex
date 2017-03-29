@@ -1,0 +1,408 @@
+\documentclass[10pt]{book}
+\setlength{\parindent}{0em}
+\setlength{\parskip}{1em}
+
+\usepackage{pdfpages}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{framed}
+\usepackage{amsmath}
+\usepackage{makecell}
+\usepackage{commath}
+\usepackage{amsfonts}
+\usepackage[n, advantage, operators, sets, adversary, landau, probability, notions, logic, ff, mm, primitives, events, complexity, asymptotics, keys] {cryptocode}
+
+\usepackage{geometry}
+\geometry{bindingoffset=1cm}
+
+\newcommand{\overbar}[1]{\mkern 1.5mu\overline{\mkern-1.5mu#1\mkern-1.5mu}\mkern 1.5mu}
+\newcommand\numberthis{\addtocounter{equation}{1}\tag{\theequation}}
+
+\newtheorem{definition}{Definition}
+\newtheorem{example}{Example}
+
+
+\title{Security of Deterministic Encryption}
+\author{Zichen Gui}
+
+
+\begin{document}
+%\begin{titlepage}
+%\centering
+%{\scshape \LARGE Security of Deterministic Encryption \par}
+%\vspace{1cm}
+%{\scshape \large Zichen Gui\par}
+%\vspace{1cm}
+%{\scshape \large 40 cp at Level M \par}
+%\vspace{1cm}
+%supervised by \par
+%{\scshape \large Dr. Bogdan Warinschi \par}
+
+%\vfill
+%{\large \today\par}
+%\end{titlepage}
+
+\tableofcontents
+
+
+
+
+\chapter{Introduction}
+Cloud storage is a data storage model in which the digital data is stored remotely on servers owned by a third-party hosting company. It is a cheap alternative to local data storage and management, and has gain much popularity in industry. However, security becomes a real concern in this setting, as an evil man can extract useful information from the server itself or decipher database queries in some way.
+
+As a solution, many encrypted database (EDB) systems have been proposed. CryptoDB \cite{Popa:2011:CPC:2043556.2043566} in particular, is known as a EDB on relational databases which can handle SQL style queries. It is built on property preserving encryption schemes such as deterministic and order-preserving encryption.
+
+However, it has been proven that property preserving encryption schemes are not sufficient to protect the database system. The property preserved by the encryption scheme can often leak enough information for the attacker to recover something from the EDB. Furthermore, the queries made by the client to the server can be used to generate statistical attack.
+
+In this project, we aim to address the two security concerns listed above.
+
+\#TODO: roadmap to the chapters (storage security on itself then query security)
+
+
+
+
+\chapter{Literature on Property Preserving Encryption Schemes}
+For traditional encryption schemes, security is based on indistinguishability (IND) of ciphertexts \cite{GOLDWASSER1984270} or equivalently semantic security \cite{Goldwasser:1982:PEA:800070.802212}. For schemes that are secure in this setting, the adversary should learn no information from seeing a ciphertext. However, this also means that one cannot process encrypted data efficiently. For instance, keyword search can only be achieved in linear time \cite{Boneh2004, Song:2000:PTS:882494.884426}.
+
+Schemes allowing for better processing of encrypted data are devised but the ciphertext often possess some additional properties, thus leaking information about the underlying plaintext. Those schemes usually do not satisfy the usual indistinguishability notion of security because the additional properties can be exploited to generate attacks. In that case, one needs to understand what is the maximum level of security those schemes can offer. For our interest, we will focus on a specific encryption scheme of the type, known as deterministic encryption.
+
+
+
+
+\section{Deterministic Encryption}
+In CRYPTO 2007, Bellare et al. presented a construction of deterministic encryption (DE) scheme based on (randomized) public-key encryption schemes, and defined security notion for their scheme in the random oracle model \cite{Bellare2007}. In the follow-up papers, definitional equivalences of security notion without random oracles are studied \cite{Bellare2008, Boldyreva2008}.
+
+In this section, we will describe the key ideas in the construction, and analyse security of the scheme under the security notion defined in the original papers.
+
+
+\subsection{Construction based on Hash function}
+Let $(\mathcal{K}, \mathcal{E}, \mathcal{D})$ be any randomized public-key encryption scheme, and $H(\cdot)$ a hash function. The idea of deterministic encryption is that instead of instead of letting the encryption algorithm $\mathcal{E}$ to determine its randomness, we will use the hash function $H(\cdot)$ to flip the coins deterministically.
+
+\begin{figure}
+\begin{pchstack}[center]
+	\procedure{Key generation}{%
+		\pcln (\pk, \sk) \sample \mathcal{K}(1^n)
+	}
+	
+	\pchspace
+	
+	\procedure{Encryption(\pk, $x$)}{%
+		\pcln \omega \gets H(\pk \concat x)       \\
+		\pcln y \gets \mathcal{E}(\pk, x; \omega) \\
+		\pcln \pcreturn y
+	}
+	
+	\pchspace
+	
+	\procedure{Decryption(\pk, \sk, $y$)}{%
+		\pcln x \gets \mathcal{D}(\sk, y)  \\
+		\pcln \omega \gets H(\pk \concat x)  \\
+		\pcln \pcif \mathcal{E}(\pk, x; \omega) = y \text{ } \pcreturn x  \\
+		\pcln \pcreturn \perp
+	}
+\end{pchstack}
+
+\caption{Deterministic encryption based on hashing}
+\end{figure}
+
+
+For the construction to work, of course we demand $H(\pk \concat x) \in \text{Coin}_{\pk}(\abs{x})$, where $\text{Coin}_{\pk}$ denotes the set of coins of $\mathcal{E}(\pk, x)$. Intuitively, this scheme is secure because for an adversary to recover the message, he effectively has to know the underlying randomness used by the encryption algorithm, but for a secure hash function the adversary cannot do so.
+
+
+\subsection{Generalization of Previous Construction}
+The construction above can be generalised. Instead of hashing, we can use trapdoor permutation to generate the coins. We shall first define trapdoor permutation formally.
+
+\begin{definition}[Trapdoor permutation]
+	A trapdoor function is a family of functions that is easy to compute but hard to invert. However, if given some additional information, known as the 'trapdoor', the inversion can be computed efficiently. \\
+	Formally, let $F = \{f_k : D_k \rightarrow R_k\} (k \in K)$ be a collection of one-way functions, then F is a trapdoor function if the following holds:
+	\begin{itemize}
+		\item
+		There exists a probabilistic polynomial time (PPT) sampling algorithm $Gen$ such that $Gen(1^n) = (k, t_k)$ and $t_k \in \{0,1\}^*$ satisfies that $\abs{t_k}$ is polynomial in length. Each $t_k$ is called the trapdoor corresponding to $k$.
+		\item
+		Given input $k$, there exist a PPT algorithm that outputs $x \in  D_k$.
+		\item
+		For any $k \in K$, there exist a PPT algorithm that computes $f_k$ correctly.
+		\item
+		For any $k \in K$, there exist a PPT algorithm A such that $y = A(k, f_k(x), t_k)$, and $f_k(y) = f_k(x)$. That is, the function can be inverted efficiently with the trapdoor.
+		\item
+		For any $k \in K$, without the trapdoor $t_k$, the adversary of any PPT adversary
+		\begin{center}
+			\advantage{Trapdoor}{\adv, Trapdoor} = \prob{
+				\begin{array}{c}
+					(t, t_k) \gets Gen(1^n), x \gets D_k, y \gets f_k(x), \\
+					 z \gets \adv(1^n, k, y): f_k(x) = f_k(y)
+				\end{array}
+			}
+		\end{center}
+		is negligible.
+	\end{itemize} 
+\end{definition}
+
+For ease of notation, we write trapdoor permutation as $(G, F, \bar{F})$, where $G$ is the key generation algorithm, $F$ is the trapdoor permutation, and $\bar{F}$ is the inverse. Further, we write $F^n(\cdot)$ to denote $F(F(\cdots F(\cdot)))$, that is $F$ is applied to the input n times. Finally, we denote $GetCoins(F, \phi, \cdot, \cdot)$ to be a pseudo-random generator based on one-way function $F$ and its public key $\phi$. Such construction can be found in the \cite{doi:10.1137/0213053, 4568378, Goldreich:1989:HPO:73007.73010}.
+
+The generalised deterministic encryption scheme has a very similar construction to the case where hash function is used. The main differences are: (1) instead of encrypting the plaintext straight away, the trapdoor permutation is applied to the plaintext before using the probabilistic encryption algorithm $\mathcal{E}$, and (2) the trapdoor function is used to generate the randomness for the encryption scheme.
+
+\begin{figure}
+\begin{pchstack}[center]
+	\procedure{Key generation}{%
+		\pcln (\phi, \tau) \sample \mathcal{G}(1^n)  			    \\
+		\pcln s \sample \{0, 1\}^n   								\\
+		\pcln (\bar{\pk}, \bar{\sk}) \sample \mathcal{K}(1^n)       \\
+		\pcln \pk \gets (\phi, \bar{\pk}, s)                        \\
+		\pcln \sk \gets (\tau, \bar{\sk})             				\\
+		\pcln \pcreturn (\pk, \sk)
+	}
+	
+	\pchspace
+	
+	\procedure{Encryption(\pk, $x$)}{%
+		\pcln (\phi, \bar{\pk}, p) \gets \pk        \\
+		\pcln y \gets F(\phi, x)                    \\
+		\pcln \omega \gets GetCoins(F, \phi, x, s)  \\
+		\pcln c \gets \mathcal{E}(\pk, y; \omega)   \\
+		\pcln \pcreturn c
+	}
+	
+	\pchspace
+	
+	\procedure{Decryption(\pk, \sk, $y$)}{%
+		\pcln (\tau, \bar{\sk}) \gets \sk        \\
+		\pcln y \gets \mathcal{D}(\bar{\sk}, c)  \\
+		\pcln x \gets \bar{F}(\tau, y)           \\
+		\pcln \pcreturn x
+	}
+\end{pchstack}
+
+\caption{Deterministic encryption based on trapdoor permutations}
+\end{figure}
+
+
+
+\subsection{Usefulness of Deterministic Encryption}
+There are numerous searchable encryption schemes with strong security guarantees include \cite{Boneh2004, Golle2004, Abdalla2005, Baek2008, Boyen2006, Boneh2007} in the public-key setting, and \cite{Song:2000:PTS:882494.884426, goh03, Chang2005} in the symmetric-key setting. However, all the schemes require linear search time, which is not ideal for large databases.
+
+On the other hand, researchers have proposed sub-linear time searchable encryption in \cite{Ozsoyoglu2004, Agrawal:2004:OPE:1007568.1007632, Hacigumus:2002:ESO:564691.564717, Damiani:2003:BCE:948109.948124, Hore:2004:PIR:1316689.1316752, Iyer2004, Li2005, Hacıgümüş2004, doi:10.1201/1086/44530.13.3.20040701/83065.3, Wang:2006:ESQ:1182635.1164140}. However, security of these schemes are usually not analysed, which means that they can be vulnerable to various type of attacks. Deterministic encryption is one of the first schemes that is efficient in encrypting database and making queries, with provable security guarantees. In particular, for deterministic encryption, searching for equality can be done in log-time with binary search \cite{Williams:1976:MHS:503561.503582}, or log-log-time with more advanced Van Emde Boas tree \cite{VANEMDEBOAS197780}. In our research, we will focus mainly on the database application of deterministic encryption.
+
+
+
+
+\subsection{Security of Deterministic Encryption}
+\textbf{SECURITY NOTION IN THE ORIGINAL PAPER.} As the scheme is deterministic, it is impossible to meet classic IND-CPA security \cite{GOLDWASSER1984270}. In the original papers for deterministic encryption \cite{Bellare2007, Bellare2008, Bellare2008}, the authors presented a set of security notions based on the traditional semantic security and IND security with a less powerful adversary, and proved equivalence of the notions. For our interest, we will present the IND adversary.
+
+An IND adversary is a triple $I = (I_c, I_m, I_g)$ of PPT algorithms. $I_c$ is an algorithm that, given the security parameter as the input, generates a state that will be used by $I_m$. $I_m$ then outputs two plaintexts $(m_0, m_1)$ given the state passed on by $I_c$. The challenger picks a bit $b$ randomly from ${0, 1}$ and encrypts $m_b$. The encrypted message is then sent back to the adversary. Finally, the adversary guesses the bit $b$ by running $I_g$ with public key, the encryption of $m_b$, and the state generated by $I_c$.
+
+\begin{figure}
+\begin{pchstack}[center]
+	\procedure{Experiment $\text{EXP}_\text{I}^\text{IND}(n)$}{%
+		\pcln st \gets I_c(1^n)        \\
+		\pcln (m_0, m_1) \gets I_m(st) \\
+		\pcln b \sample \{0, 1\}       \\
+		\pcln c \gets \text{Encryption}(pk, m_b) \\
+		\pcln b^{'} \gets I_g(\pk, c, st)
+	}
+\end{pchstack}
+
+\caption{IND game for deterministic encryption}
+\end{figure}
+
+
+We say that a scheme is IND secure, if for any IND-adversary I, the probability that I guesses the bit $b$ right is only negligibly higher than half. The adversary presented here has a few key differences to the traditional IND-adversary:
+\begin{itemize}
+	\item
+	The algorithms $I_c$ and $I_m$ accessed by the adversary have no access to the public key.
+	\item
+	The message space has high min-entropy \cite{2008arXiv0807.1338K}.
+\end{itemize}
+
+Both of the assumptions on the power of the adversary are very strong. In practice, one can hardly expect the adversary to gain access to the public key only at the guessing stage. In the same vein, in many applications, the message space in fact has very low entropy. Hence, security in this notion does not necessarily imply security in practice.
+
+\textbf{SECURITY NOTION OF IND-DCPA.} Alternatively, IND-DCPA (indistinguishability under distinct chosen-plaintext attack) is defined in \cite{Bellare:2002:AES:586110.586112}. As deterministic encryption will always leak plaintext equality, the idea of IND-DCPA is that the adversary should only make distinct queries to the oracle.
+
+\begin{figure}[H]
+	\begin{center}
+	\begin{bbrenv}{B}
+		\begin{bbrbox}[name=Adversary, minheight=3.5cm, minwidth=2.5cm]
+		\end{bbrbox}
+		
+		\bbrmsgfrom{top = {$\{(m_0^{i}, m_1^{i})\}$}, length=2cm}
+		\bbrmsgspace{1cm}
+		\bbrmsgto{top = {$\{c_b^{i}\}$}, length=2cm}
+		\bbrmsgspace{1cm}
+		\bbrmsgfrom{top = {$b'$}, length=2cm}
+		
+		\begin{bbroracle}{OraA}
+			\begin{bbrbox}[name={Encryption}, minheight=1cm]
+			\end{bbrbox}
+		\end{bbroracle}
+		\bbroracleqryto{top= {$m$}}
+		\bbroracleqryfrom{top = {$Enc(m)$}}
+		
+	\end{bbrenv}
+	\end{center}
+
+	\caption{Cryptographic game of IND-DCPA}
+\end{figure}
+
+In the game, the adversary queries the challenger pairs of messages $(m_0^{1}, m_1^{1}), (m_0^{2}, m_1^{2}), \cdots,$ $(m_0^{q}, m_1^{q})$, where $m_b^{1}, \cdots, m_b^{q}$ are all distinct for $b \in \{0, 1\}$. The challenger then randomly picks $b \in \{0, 1\}$, encrypts all $m_b^{i}$ for $i \in \{1, \cdots, q\}$ and sends them back to the adversary. The adversary, with the help of the encryption oracle, has to guess the bit $b$. He returns $b^{'}$ as his guess and he wins if $b = b^{'}$.
+
+Just like the security notion in the original paper, assumption of IND-DCPA is hard to meet in practice. In particular, for databases, there is no reason why the same plaintext cannot be encrypted twice.
+
+
+
+
+\section{Attack on Database Encrypted using Deterministic Encryption}
+Deterministic encryption has fairly strong security guarantees if the assumptions of the security notion are met. However, for database applications, the assumptions are impossible to achieve. In \cite{Naveed:2015:IAP:2810103.2813651}, Naveed et al. have proposed frequency attack on databases encrypted using deterministic encryption, with auxiliary information on the distribution of the plaintext. They have tested their attack on National Inpatient Sample (NIS) database of the Healthcare Cost and Utilization Project (HCUP). In the experiment, they are able to recover almost all information of the database.
+
+\subsection{Notation}
+We denote $c = (c_0, c_1, \cdots, c_n)$ to be the list of entries for a column in the database. We write $Hist(c)$ to be the function that generates the histogram of $c$. On input $c_i$, $Hist(c)$ will output the frequency of $c_i$ inside $c$. Further, we write $vSort(\cdot)$ to be the function that sorts a histogram in decreasing order of frequency. So $vSort(Hist(c))[0]$ will be the element in $c$ that has the highest frequency. Finally, we define $Rank_{\psi}(c_i)$ to be the rank of $c_i$ in the sorted histogram $\psi$. That is, if $c_i$ is the most frequent ciphertext in $c$, $Rank_{vSort(Hist(c))}(c_i) = 0$.
+
+
+\subsection{The attack}
+The attack used in the paper against deterministically encrypted databases is the most basic and famous attack, known as frequency attack. The attack relies on auxiliary information on the plaintext. Let $c$ be the target of attack, and $z$ be some auxiliary dataset. The attack can be written as follows:
+
+\begin{center}
+	\procedure{Attack$(z, c)$}{%
+	\pcln \text{compute } \psi \gets vSort(Hist(c))  \\
+	\pcln \text{compute } \pi  \gets vSort(Hist(z))  \\
+	\pcln output A:C_k \rightarrow M_k \text{ such that} \\
+	\pcind[5] A(c) = \pi[Rank_{\psi}(c)]
+}
+\end{center}
+
+The attack does no more than just assigning the most frequent plaintext of the auxiliary dataset to the most frequent ciphertext in the target database. But for statistical databases, the distributions usually do not change, so the attack has a good chance of recovering the plaintexts.
+
+On a side note, additional datasets may be very easy to obtain in some cases. In the paper that the attack described is based on, the auxiliary data is the Texas Inpatient Public Use Data File (PUDF), which is publicly available online. Usage of the database only requires the user to sign a data use agreement, but there is no reason to assume that an evil adversary will keep his promise.
+
+
+\#TODO: OPE, full homomorphic encryption
+
+\section{Discussion}
+In this chapter, we have shown that deterministic encryption is very useful in encrypting databases. However, for such application, the assumptions of the security notion introduced in \cite{Bellare2007, Boldyreva2008, Bellare2008} cannot be met, so attacks such as frequency attack \cite{Naveed:2015:IAP:2810103.2813651} can be deployed to exploit the cryptosystem.
+
+As the security notions defined in the original paper are not useful against statistical attacks, we wish to construct new security notions that have security guarantee against such attacks. Furthermore, we want to find schemes that are efficient in encryption and database queries, and prove their security in the new security notion. 
+
+
+
+
+\chapter{Efficient Searchable Databases}
+In this chapter, we will first formally define relational databases used in our constructions, and then give three constructions based on padding. In the next chapter, we will prove that two of the constructions are secure under our definition of security, and the third one is secure in one definition but not secure in the other.
+
+
+
+
+\section{Relational Database}
+A relational database is a collection of tables organized based on the relational model proposed in \cite{Codd:1970:RMD:362384.362685}. Each row in the table represents an entity (e.g. a student or a transaction). Each column on the other hand, corresponds to an attribute (e.g. age or transaction fee). For each attribute, we call the set of all possible values \textit{attribute space}, and denote it by $C_i$, where $i$ is the index on the column.
+
+For $r$ a row of the database, we write $r || x$ to mean $r$ append with column(s) $x$ (Here, $x$ is a row too.). We write $(D, E)$ to mean append rows of $E$ to $D$. Let $Enc$ be some encryption scheme on one cell of the database, we abuse the notation to write $Enc(d_i) = Enc(d_{i,1}) || Enc(d_{i,2}) || \cdots || Enc(d_{i_m})$ if the public key \pk is obvious in the context.
+
+
+
+
+\section{Encryption Scheme on Relational Database}
+Just like usual encryption schemes, we define encryption scheme on relational database to be a triple $(Kg, Enc, Dec)$, where $Kg$ is the key generation function, $Enc$ is the (deterministic) encryption function and $Dec$ is the decryption function. We do not define how searching should work on the database here because that depends on the underlying data structure deployed by the database system and the searching algorithm used. In any case, as long as our database is sane in size (larger than the trivial one by a constant factor), time complexity of searching will not be affected for any efficient searching algorithm.
+
+As a standard correctness requirement, we demand for any database $d$ and valid $(\pk, \sk)$ pair generated by $Kg$, $d = Dec(Enc(d, \pk), \sk)$.
+
+
+
+
+
+\section{Constructions of Encryption Schemes on Relational Database}
+All three constructions presented here are based on deterministic encryption in \cite{Bellare2007, Bellare2008, Boldyreva2008}. We denote the deterministic encryption scheme used in our construction as $(\overbar{Kg_1}, \overbar{Enc_1}, \overbar{Dec_1})$, where $\overbar{Kg}, \overbar{Enc}, \overbar{Dec}$ are the key generation, encryption and decryption functions respectively. Here we are not specifying which deterministic encryption to use. The only requirement is that the scheme is deterministic in nature, and satisfies the privacy (PRIV) notion of security defined in the papers mentioned above. For the constructions, we also rely on a probabilistic encryption scheme which we shall call it $(\overbar{Kg_2}, \overbar{Enc_2}, \overbar{Dec_2})$,
+
+As deterministic encryption reveals frequency, the idea is to pad the encrypted database in a way such that the frequencies of all possible values of the attributes are indistinguishable.
+
+Without loss of generality, we will assume that our database has only one column. Multi-column database can be viewed as a single column database with attributes being combination of the attributes in the original database.
+
+
+\subsection{Full Padding Scheme}
+The most trivial way to hide frequency would be to pad all other possible values of the attribute (recall that we assume that our database has only one column) given an actual row to the database. An auxiliary column is used to mark if the row is real or fake.
+
+Define $C = C_1 \times C_2 \times \cdots C_m$ to be the attribute space of the database. Let Then the full padding scheme \texttt{Padding1} can be written as $\texttt{{Padding1}} = (Kg, Enc, Dec)$, where $Kg = \overbar{Kg_1}$, and encryption and decryption algorithms are specified below:
+
+\begin{pchstack}
+	\procedure[linenumbering]{$Enc(m)$}{%
+		\pcfor x \in C	\\
+		\t	\pcif x = m	\\
+		\t \t D \gets (D, (Enc_1(m) || Enc_2(True))) \\
+		\t \pcelse	\\
+		\t \t D \gets (D, (Enc_1(x) || Enc_2(FALSE))
+	}
+	
+	\pchspace
+	\procedure[linenumbering]{$Dec(D)$}{%
+		E = ()	\\
+		(d_1, d_2, \cdots, d_m) \gets D	\\
+		\pcfor i = 1, \cdots, m \\
+		\t c || x \gets d_i	\\
+		\t \pcif Dec_2(x) = True \\
+		\t \t E \gets (E, Dec(c))	\\
+		\pcreturn E
+	}
+\end{pchstack}
+
+This scheme is NOT efficient by any means. In particular, for each actual row, we need to append $|C| = |C_1 \times C_2 \times \cdots \times C_m| = \prod_i |C_i|$ dummy rows. That is not practical at all. However, for theoretical purposes, this scheme is relatively easy to understand and its nice properties enables for simple proofs of security.
+
+
+\subsection{Fixed Padding Scheme 1}
+To work around the inefficiency in the full padding scheme, we want to have some scheme that have a short and fixed padding. This is impossible with a deterministic padding scheme because the padded rows themselves will reveal frequency, so we must do it probabilistically.
+
+\textbf{Notation} Let $\Pi_0: C \rightarrow [0,1]$ be the probability mass function of the input attributes. Without loss of generality, we can enumerate elements of $C$ as $\{1,\cdots,k\}$, then $\Pi_0(i)$ is the frequency of occurrence of the $i$-th attribute.
+
+Let $p$ be the number of additional insertions we make per real entry, and $\Pi_1, \Pi_2, \cdots, \Pi_p$ be the corresponding probability mass functions for each additional insertion which we will specify later, then the following condition is necessary for the scheme to be secure:
+\begin{equation}
+	\frac{1}{p+1} (\sum_{i=0}^{p} \Pi_i(j)) = \frac{1}{k} \qquad \forall j \in \{1, \cdots, k\}, \label{first equation}
+\end{equation}
+constrained to $\sum_{j} \Pi_i(j) = 1$ for all $i \in \{1, \cdots, p\}$. In plain words, we want all attributes to appear the same number of times in expectation. In the equation, $\Pi_0$ and $k$ are fixed. We aim to find a lower bound on $p$. It is clear that $\Pi_i$'s are probability mass functions so they must be non-negative, so we have
+\begin{align*}
+				& \frac{1}{p+1} (\sum_{i=0}^{p} \Pi_i(j)) \geq \frac{1}{p+1} \Pi_0(j) \qquad \forall j \in \{1, \cdots, k\}	\\
+	\implies	& \frac{1}{k} \geq \frac{1}{p+1} \Pi_0(j) \qquad \forall j \in \{1, \cdots, k\}	\\
+	\implies 	& p \geq k \cdot \Pi_0(j) - 1 \qquad \forall j \in \{1, \cdots, k\}	\\
+	\implies	& p \geq k \cdot \max_{j}{\Pi_0(j)} - 1 \numberthis \label{lb on p}
+\end{align*}
+This agrees with intuition. If $\max_{j}{\Pi_0(j)} = \frac{1}{k}$, then $p \geq 0$, in which case we can encrypt without any padding. On the other hand, if $\max_{j}{\Pi_0(j)} = 1$, then $p \geq k - 1$, which is essentially the full padding scheme introduced earlier.
+
+\textbf{Choose p and $\Pi_i$} For the first fixed padding scheme, we propose to choose the smallest $p$ possible, and $\Pi_i(j)$ to be the average of the remainder in equation \ref{first equation}:
+\begin{align}
+	p & = \lceil k \cdot \max_{j}{\Pi_0(j)} - 1 \rceil, \\
+	\Pi_i(j) & = \frac{1}{p} \left(\frac{p+1}{k} - \Pi_0(j)\right) \qquad \forall i \in \{1, \cdots, p\}, \  j \in \{1, \cdots, k\}.
+\end{align}
+
+To illustrate this scheme in practice, we consider the following example.
+\begin{example} \label{Example 1}
+Let $\Pi_0(1) = \frac{2}{3}, \ \Pi_0(2) = \frac{1}{6}, \ \Pi_0(3) = \frac{1}{6}$, then
+\begin{align*}
+	p & = \lceil k \cdot \max_{j}{\Pi_0(j)} - 1 \rceil	\\
+	  & = \lceil 3 \cdot \frac{2}{3} - 1 \rceil	\\
+	  & = 1,	\\
+	\Pi_1(1) & = \frac{1}{1} \left( \frac{1+1}{3} - \Pi_0(1) \right) \\
+			 & = \frac{2}{3} - \frac{2}{3} \\
+			 & = 0,	\\
+	\Pi_1(2) = \Pi_1(3) & = \frac{1}{1} \left( \frac{1+1}{3} - \frac{1}{6} \right) \\
+						& = \frac{1}{6}.
+\end{align*}
+\end{example}
+
+\textbf{Variation to the scheme} As we can see, the number of paddings we have to apply depends exclusively on the attribute of the highest frequency (or min-entropy from information-theoretic point of view). This value can be reduced by splitting that attribute into many pieces (recursively if necessary). For example, if we want to split attribute 1 in example \ref{Example 1} into two pieces, we can do the following:
+\begin{enumerate}
+\item Re-define $\Pi_0(1) = \frac{1}{3}, \ \Pi_0(2) = \frac{1}{6}, \ \Pi_0(3) = \frac{1}{6}, \ \Pi_0(4) = \frac{1}{3}$.
+\item Compute $p$, and $\Pi_1, \cdots, \Pi_p$ (In this case $p = 1$ still, but for the interesting cases, $p$ will be smaller.).
+\item For attribute 2 and 3, use the original encryption scheme.
+\item For attribute 1, rename it to attribute 1 or attribute 4 with probability 50\% each, and use the original encryption scheme to encrypt it.
+\item To decrypt, attribute 2 and 3 are straight forward. For attribute 1 and 4, the user only has to bookkeep the fact that attribute is a variant of attribute 1 to decrypt correctly.
+\end{enumerate}
+
+
+
+
+
+
+\bibliographystyle{plain}
+\bibliography{Reference}{}
+
+
+\end{document}
+
