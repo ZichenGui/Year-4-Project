@@ -386,6 +386,32 @@ Let $\Pi_0(1) = \frac{2}{3}, \ \Pi_0(2) = \frac{1}{6}, \ \Pi_0(3) = \frac{1}{6}$
 \end{align*}
 \end{example}
 
+\textbf{Encryption scheme}
+We write $\sample \Pi$ to mean sample an multinomial random variable once from distribution specified by $\Pi$. Then the first fixed padding scheme can be described as $(Kg, Enc, Dec)$ where:
+
+\begin{pchstack}
+	\procedure[linenumbering]{$Kg(\Pi_0)$}{%
+		(\pk', \sk) \gets \overbar{Kg}	\\
+		p \gets \lceil k \cdot \max_{j}{\Pi_0(j)} - 1 \rceil	\\
+		\pcfor i = 1 \cdots p	\\
+		\t \pcfor j = 1 \cdots k	\\
+		\t \t \Pi_i(j) = \frac{1}{p} \left(\frac{p+1}{k} - \Pi_0(j)\right)	\\
+		\pk \gets (\pk', p, \Pi_1, \cdots, \Pi_p)
+	}
+	
+	\pchspace
+	\procedure[linenumbering]{$Enc(m, \pk)$}{%
+		(\pk', p, \Pi_1, \cdots, \Pi_p) \gets \pk \\
+		D \gets (D, (Enc_1(m) || Enc_2(True))) \\
+		\pcfor i = 1 \cdots p	\\
+		\t x \sample \Pi_i	\\
+		\t D \gets (D, (Enc_1(x) || Enc_2(False)))
+	}
+\end{pchstack}
+
+and the decryption function is the same as of the full padding scheme.
+
+
 \textbf{Variation to the scheme} As we can see, the number of paddings we have to apply depends exclusively on the attribute of the highest frequency (or min-entropy from information-theoretic point of view). This value can be reduced by splitting that attribute into many pieces (recursively if necessary). For example, if we want to split attribute 1 in example \ref{Example 1} into two pieces, we can do the following:
 \begin{enumerate}
 \item Re-define $\Pi_0(1) = \frac{1}{3}, \ \Pi_0(2) = \frac{1}{6}, \ \Pi_0(3) = \frac{1}{6}, \ \Pi_0(4) = \frac{1}{3}$.
@@ -394,6 +420,16 @@ Let $\Pi_0(1) = \frac{2}{3}, \ \Pi_0(2) = \frac{1}{6}, \ \Pi_0(3) = \frac{1}{6}$
 \item For attribute 1, rename it to attribute 1 or attribute 4 with probability 50\% each, and use the original encryption scheme to encrypt it.
 \item To decrypt, attribute 2 and 3 are straight forward. For attribute 1 and 4, the user only has to bookkeep the fact that attribute is a variant of attribute 1 to decrypt correctly.
 \end{enumerate}
+
+
+\subsection{Fixed Padding Scheme 2}
+We will see in the next chapter that the first fixed padding scheme is not secure. This is because the requirement in equation \ref{first equation} only require the expectation of the frequencies of the attributes to be the same. As random variables, the frequencies can still have different variances, and that can be used to distinguish attributes from each other.
+
+Hence, in the modified fixed padding scheme, we want to make variances equal for the attributes too.
+
+
+
+
 
 
 
