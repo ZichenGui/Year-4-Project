@@ -1,0 +1,319 @@
+In this chapter, we will formally define relational databases and encrypted relational databases. Then we will give three constructions based on padding. In the next chapter, we will prove that two of the constructions are secure under our definition of security, and the third one is secure in one definition but not secure in the other.
+
+
+
+
+\section{Relational Database}
+In this section we want to define relational database formally. A relational database is a collection of tables $T = \{T_1, \cdots, T_t\}$ organized based on the relational model proposed in \cite{Codd:1970:RMD:362384.362685}. We model the tables $T_i$'s as arrays where the entries in the array comes from one of the pre-defined data types $Type$. For simplicity, we assume that there is only one table in our database which we shall call it $D$. Each row in $D$ represents an entity (e.g. a student or a transaction). Each column on the other hand, corresponds to an attribute (e.g. age or transaction fee). For each attribute, we call the set of all possible values \textit{attribute space}, and denote it by $C_i$, where $i$ is the index on the column.
+
+For $r$ a row of the database, we write $r \ || \ x$ to mean $r$ append with column(s) $x$ (Here, $x$ is a row too.). We write $(A, B)$ to mean append rows of $B$ to $A$. Then we can denote a row in the database as
+\begin{equation*}
+	r = v_1 \ || \ \cdots \ || \ v_c \quad \text{for some } v_i \in C_i,
+\end{equation*}
+and the set of possible configuration for a row as
+\begin{equation*}
+	R = \{v_1 \ || \ \cdots \ || \ v_c \mid v_i \in C_i \text{ for all } i \}.
+\end{equation*}
+Then database $D$ with $n$ rows can be written as:
+\begin{equation*}
+	D = \{ (r_1, \cdots, r_n) \mid r_i \in R \text{ for all } i \}.
+\end{equation*}
+
+To take a step further, we define relational database with associated operations as a tuple $(T, F)$, where $T$ is the set of tables in the database and $F$ is the set of operations we want to perform on the database. In the simplified case with only one table $D$, we write our relational database with associated operations $(D, F)$. We say that $(D, F)$ is \textit{well-formed} if $D$ follows the structure specified above and all functions $f \in F$ are well-defined functions, i.e. all $f$ returns the correct output all the times.
+
+
+
+
+\section{Encrypted Relational Database}
+The definition above can be extended to encrypted relational database $D$. We define encrypted relational database with associated operations as a tuple $(D, F, \Sigma, F_\Sigma)$, where $\Sigma = (Kg, Enc, Dec)$ is the encryption scheme on the relational database, and $F_\Sigma$ is the set of function corresponds to $F$ which operates on the encrypted database. The operations on the database can be represented by the following commutative diagram:
+
+\begin{figure}[H]
+\begin{center}
+\begin{tikzpicture}[shorten >=1pt,node distance=4cm,auto] 
+\node (D)  at (0,0) {$D$};
+\node [right of = D]  (ED) {$ED$};
+\node [below of = D]  (A)  {$A$};
+\node [below of = ED] (EA) {$EA$};
+
+\draw[->] ([yshift =  .5ex]D.east) -- node[above] {$Enc(\cdot)$} ([yshift =  .5ex]ED.west);
+\draw[<-] ([yshift = -.5ex]D.east) -- node[below] {$Dec(\cdot)$} ([yshift = -.5ex]ED.west);
+
+\draw[->] (D)  -- node[left]  {$f \in F$} (A);
+\draw[->] (ED) -- node[right] {$g \in F_\Sigma$} (EA);
+
+\draw[<-] (A)  -- node[above = .5ex] {$Dec(\cdot) \text{ or } =$} (EA);
+\end{tikzpicture}
+\end{center}
+\caption{Commutative diagram for encrypted relational database}
+\end{figure}
+
+In the diagram, $D$ is the relational database, $ED$ is the encrypted relational database, $A$ is the answer returned by some $f \in F$ applied to database $D$, and $EA$ represents the encrypted answer returned by some $g \in F_\Sigma$ applied to encrypted database $ED$.
+
+We say that $(D, F, \Sigma, F_\Sigma)$ is \textit{well-formed} if:
+\begin{enumerate}
+\item $Dec(Enc(D)) = D$
+\item $Dec(ED) = D$
+\item Let $f \in F$ be some operation on $D$ and $g$ be the corresponding encrypted version of $g$. If the encrypted answer returned by $g$ requires $\Sigma$ to decrypt, then $Dec(g(Enc(D))) = f(D)$. Otherwise, $g(Enc(D)) = f(D)$. 
+\end{enumerate}
+
+In particular, we can see the first statement follows immediately if we allow $id \in F$. Using the third requirement, we have $id(D) = Dec(id(Enc(D))) \xRightarrow{}{} D = Dec(Enc(D))$. Database queries can also be viewed as operations on the database. With the commutative diagram, we require encrypted queries performed on the encrypted database to return the same results as of the queries on the original database. 
+
+
+
+
+\section{Constructions of Encryption Schemes on Relational Database}
+All three constructions presented here are based on deterministic encryption in \cite{Bellare2007, Bellare2008, Boldyreva2008}. We denote the deterministic encryption scheme used in our construction as $DE = (\overbar{Kg_1}, \overbar{Enc_1}, \overbar{Dec_1})$, where $\overbar{Kg_1}, \overbar{Enc_1}, \overbar{Dec_1}$ are the key generation, encryption and decryption functions respectively. Here we are not specifying which deterministic encryption to use. The only requirement is that the scheme is deterministic in nature, and satisfies the privacy (PRIV) notion of security defined in the papers mentioned above. For the constructions, we also rely on a probabilistic encryption scheme which we shall call it $PE = (\overbar{Kg_2}, \overbar{Enc_2}, \overbar{Dec_2})$. As further notations, we write $\$(A, B)$ to mean append rows of $B$ to $A$ randomly. Let $Enc$ be some encryption scheme on one cell of the database, we abuse the notation to write $Enc(d_i) = Enc(d_{i,1}) \ || \ Enc(d_{i,2}) \ || \ \cdots \ || \ Enc(d_{i_m})$ if the public key $\pk$ is obvious in the context.
+
+As deterministic encryption reveals frequency, the idea is to pad the encrypted database in a way such that the frequencies of all possible values of the attributes are indistinguishable. Without loss of generality, we will assume that our database has only one column. Multi-column database can be viewed as a single column database with attributes being combination of the attributes in the original database.
+
+
+
+
+
+\section{Full Padding Scheme}
+The most trivial way to hide frequency would be to pad all other possible values of the attribute (recall that we assume that our database has only one column) given an actual row to the database. An auxiliary column is used to mark if the row is real or fake.
+
+Define $C = C_1 \times C_2 \times \cdots C_c$ to be the attribute space of the database. Then the full padding scheme \texttt{Padding1} can be written as $\texttt{{Padding1}} = (Kg, Enc, Dec)$, where $Kg = \overbar{Kg_1}$, and encryption and decryption algorithms are specified below:
+
+\begin{figure}[H]
+\begin{center}
+\begin{pchstack}
+	\procedure[linenumbering]{$Enc(m, D)$}{%
+		(m_1, \cdots, m_n) \gets m \\
+		\pcfor i = 1, \cdots, n \\
+		\t \pcfor x \in C	\\
+		\t \t	\pcif x = m_i	\\
+		\t \t \t D \gets \$(D, (\overbar{Enc_1}(x) || \overbar{Enc_2}(True))) \\
+		\t \t \pcelse	\\
+		\t \t \t D \gets \$(D, (\overbar{Enc_1}(x) || \overbar{Enc_2}(False)) \\
+		\pcreturn D
+	}
+	
+	\pchspace
+	\procedure[linenumbering]{$Dec(D)$}{%
+		E = ()	\\
+		(d_1, d_2, \cdots, d_n) \gets D	\\
+		\pcfor i = 1, \cdots, n \\
+		\t c \ || \ x \gets d_i	\\
+		\t \pcif \overbar{Dec_2}(x) = True \\
+		\t \t E \gets (E, \overbar{Dec_1}(c))	\\
+		\pcreturn E
+	}
+\end{pchstack}
+\end{center}
+\caption{Encryption scheme for \texttt{Padding1}}
+\end{figure}
+
+
+This scheme is NOT efficient by any means. In particular, for each actual row, we need to append $|C| = |C_1 \times C_2 \times \cdots \times C_c| = \prod_i |C_i|$ dummy rows. That is not practical at all. However, for theoretical purposes, this scheme is relatively easy to understand and its nice properties enables for simple proofs of security.
+
+
+\section{Fixed Padding Scheme 1}
+To work around the inefficiency in the full padding scheme, we want to have some scheme that have a short and fixed padding. This is impossible with a deterministic padding scheme because the padded rows themselves will reveal frequency, so we must do it probabilistically.
+
+
+\subsection{Notation}
+Let $\Pi_0: C \rightarrow [0,1]$ be the probability mass function of the input attributes. Without loss of generality, we can enumerate elements of $C$ as $\{1,\cdots,k\}$, then $\Pi_0(i)$ is the frequency of occurrence of the $i$-th attribute.
+
+Let $p$ be the number of additional insertions we make per real entry, and $\Pi_1, \Pi_2, \cdots, \Pi_p$ be the corresponding probability mass functions for each additional insertion which we will specify later, then the following condition is necessary for the scheme to be secure:
+\begin{equation}
+	\frac{1}{p+1} (\sum_{i=0}^{p} \Pi_i(j)) = \frac{1}{k} \qquad \forall j \in \{1, \cdots, k\}, \label{first equation}
+\end{equation}
+constrained to $\sum_{j} \Pi_i(j) = 1$ for all $i \in \{1, \cdots, p\}$. In plain words, we want all attributes to appear the same number of times in expectation. In the equation, $\Pi_0$ and $k$ are fixed. We aim to find a lower bound on $p$. It is clear that $\Pi_i$'s are probability mass functions so they must be non-negative, so we have
+\begin{align*}
+				& \frac{1}{p+1} (\sum_{i=0}^{p} \Pi_i(j)) \geq \frac{1}{p+1} \Pi_0(j) \qquad \forall j \in \{1, \cdots, k\}	\\
+	\implies	& \frac{1}{k} \geq \frac{1}{p+1} \Pi_0(j) \qquad \forall j \in \{1, \cdots, k\}	\\
+	\implies 	& p \geq k \cdot \Pi_0(j) - 1 \qquad \forall j \in \{1, \cdots, k\}	\\
+	\implies	& p \geq k \cdot \max_{j}{\Pi_0(j)} - 1 \numberthis \label{lb on p}
+\end{align*}
+This agrees with intuition. If $\max_{j}{\Pi_0(j)} = \frac{1}{k}$, then $p \geq 0$, in which case we can encrypt without any padding. On the other hand, if $\max_{j}{\Pi_0(j)} = 1$, then $p \geq k - 1$, which is essentially the full padding scheme introduced earlier.
+
+
+\subsection{Choose $p$ and $\Pi_i$}
+For the first fixed padding scheme, we propose to choose the smallest $p$ possible, and $\Pi_i(j)$ to be the average of the remainder in equation \ref{first equation}:
+\begin{align}
+	p & = \lceil k \cdot \max_{j}{\Pi_0(j)} - 1 \rceil, \label{padding2 p} \\
+	\Pi_i(j) & = \frac{1}{p} \left(\frac{p+1}{k} - \Pi_0(j)\right) \qquad \forall i \in \{1, \cdots, p\}, \  j \in \{1, \cdots, k\}. \label{padding2 pi}
+\end{align}
+
+To illustrate this scheme in practice, we consider the following example.
+\begin{example} \label{example 1}
+Let $\Pi_0(1) = \frac{2}{3}, \ \Pi_0(2) = \frac{1}{6}, \ \Pi_0(3) = \frac{1}{6}$, then
+\begin{align*}
+	p & = \lceil k \cdot \max_{j}{\Pi_0(j)} - 1 \rceil \\
+	  & = \lceil 3 \cdot \frac{2}{3} - 1 \rceil	\\
+	  & = 1,	\\
+	\Pi_1(1) & = \frac{1}{1} \left( \frac{1+1}{3} - \Pi_0(1) \right) \\
+			 & = \frac{2}{3} - \frac{2}{3} \\
+			 & = 0,	\\
+	\Pi_1(2) = \Pi_1(3) & = \frac{1}{1} \left( \frac{1+1}{3} - \frac{1}{6} \right) \\
+						& = \frac{1}{2}.
+\end{align*}
+\end{example}
+
+
+\subsection{Encryption Scheme}
+We write $\sample \Pi$ to mean sample an multinomial random variable once from distribution specified by $\Pi$. Then the first fixed padding scheme can be described as $\texttt{Padding2} = (Kg, Enc, Dec)$ where:
+
+
+\begin{figure}[H]
+\begin{center}
+\begin{pchstack}
+	\procedure[linenumbering]{$Kg(\Pi_0)$}{%
+		(\pk', \sk) \gets \overbar{Kg}	\\
+		p \gets \lceil k \cdot \max_{j}{\Pi_0(j)} - 1 \rceil	\\
+		\pcfor i = 1 \cdots p	\\
+		\t \pcfor j = 1 \cdots k	\\
+		\t \t \Pi_i(j) = \frac{1}{p} \left(\frac{p+1}{k} - \Pi_0(j)\right)	\\
+		\pk \gets (\pk', p, \Pi_1, \cdots, \Pi_p)
+	}
+	
+	\pchspace
+	\procedure[linenumbering]{$Enc(\pk, m, D)$}{%
+		(\pk', p, \Pi_1, \cdots, \Pi_p) \gets \pk \\
+		(m_1, \cdots, m_n) \gets m \\
+		\pcfor i = 1, \cdots, n \\
+		\t D \gets \$(D, (\overbar{Enc_1}(m_i) || \overbar{Enc_2}(True))) \\
+		\t \pcfor i = 1 \cdots p	\\
+		\t \t x \sample \Pi_i	\\
+		\t \t D \gets \$(D, (\overbar{Enc_1}(x) || \overbar{Enc_2}(False))) \\
+		\pcreturn D
+	}
+\end{pchstack}
+\end{center}
+\caption{Encryption scheme for \texttt{Padding2}}
+\end{figure}
+and the decryption function is the same as of the full padding scheme.
+
+
+\subsection{Variation to the Scheme} 
+As we can see, the number of paddings we have to apply depends exclusively on the attribute of the highest frequency (or min-entropy from information-theoretic point of view). This value can be reduced by splitting that attribute into many pieces (recursively if necessary). For example, if we want to split attribute 1 in example \ref{example 1} into two pieces, we can do the following:
+\begin{enumerate}
+\item Re-define $\Pi_0(1) = \frac{1}{3}, \ \Pi_0(2) = \frac{1}{6}, \ \Pi_0(3) = \frac{1}{6}, \ \Pi_0(4) = \frac{1}{3}$.
+\item Compute $p$, and $\Pi_1, \cdots, \Pi_p$ (In this case $p = 1$ still, but for the interesting cases, $p$ will be smaller.).
+\item For attribute 2 and 3, use the original encryption scheme.
+\item For attribute 1, rename it to attribute 1 or attribute 4 with probability 50\% each, and use the original encryption scheme to encrypt it.
+\item To decrypt, attribute 2 and 3 are straight forward. For attribute 1 and 4, the user only has to bookkeep the fact that attribute is a variant of attribute 1 to decrypt correctly.
+\end{enumerate}
+
+
+\section{Fixed Padding Scheme 2}
+We will see in the next chapter that the first fixed padding scheme is not secure. This is because the requirement in equation \ref{first equation} is only on the expectation of the number of occurrences of the attributes. As random variables, the counts can have different variances, and that can be used to distinguish attributes from each other.
+
+
+\subsection{Mathematical Formulation}
+In the modified fixed padding scheme, we want to make variances equal for the attributes too. To achieve this, we wish to compute the distribution of the number of occurrences of the attributes. We state the distribution as a theorem:
+
+
+\begin{theorem}[Distribution of the number of occurrences of the attributes] \label{thm frequency dist}
+Let $\Pi_0,$ \\ $\cdots, \Pi_p$ be probability mass functions specified by equation \ref{first equation}. Then for any padding scheme taking the form of \texttt{Padding2} without restrictions in equation \ref{padding2 p} and \ref{padding2 pi}, given that the number of actual insertions is $n$ for some large $n$, by writing the insertions of attribute $j$ as $\{X_1^j, \cdots, X_{n(p+1)}^j\}$, a sequence of Bernoulli random variables with $X_i^j \sim Bernoulli(\Pi_{index(i)}(j)),$ \\$ \text{ for} \ index(i) = i - 1 \ (mod \ (p+1))$, we have
+\begin{equation}
+	\sum_{i=1}^{n(p+1)} X_i^j \xrightarrow[]{d} \mathcal{N}(\frac{n \cdot (p+1)}{k}, s_{n(p+1)}^2(j)) \label{frequency dist}
+\end{equation}
+where $s_{n(p+1)}^2(j)$ is the sum of variance defined in theorem \ref{CLT}.
+\end{theorem} 
+
+\textit{Proof: } See appendix \ref{proof of thm frequency dist}.
+
+
+
+
+\subsection{Statistically Indistinguishable Attributes}
+There are two important observations we can make on theorem \ref{thm frequency dist}. First of all, mean of $\sum_{i} X_i^j$ is the same for all attributes. This is nothing surprising, because it is specified by equation \ref{first equation}. However, $\sum_{i} X_i^j$ are not necessary the same in terms of the limiting distributions. This is because $s_{n(p+1)}^2(j)$ and $s_{n(p+1)}^2(k)$ can be different for $j \neq k$. To see this, we exemplify with \texttt{Padding2}. In example \ref{example 1}, $\Pi_0(1) = \frac{2}{3}, \Pi_0(2) = \Pi_0(3) = \frac{1}{6}$. For each input, we pad the database with one dummy insertion according to distribution $\Pi_1(1) = 0, \Pi_1(2) = \Pi_1(3) = \frac{1}{6}$. So for $n$ actual insertions, $s_4^2(1) = n \cdot (\frac{2}{3} \cdot \frac{1}{3}) = \frac{2n}{9}$ but $s_4^2(2) = s_4^2(3) = n \cdot (\frac{1}{6} \cdot \frac{5}{6} + \frac{1}{6} \cdot \frac{5}{6}) = \frac{5n}{18}$.
+
+Difference in the variance means that the padding scheme can potentially leak statistical distance, which is undesirable. We will see in the next chapter that statistical distance can indeed be used to attack the padding scheme. To fix the problem, we demand $s_{n(p+1)}^2(j)$ are the same for all $j \in \{1, \cdots, k\}$.
+
+Furthermore, the attributes are drawn from multinomial distribution, which means that the counts on the attributes are correlated via the covariances. By writing $Cov(i, j) = \sum_{k} - \Pi_k(i) \cdot \Pi_k(j)$ for $i \neq j$, we want to set $Cov(i,j)$ to be equal for all $i \neq j$.
+
+Unfortunately, these two restrictions may not be achievable for the smallest number of paddings $p$ suggested in equation \ref{padding2 p}. Again, in example \ref{example 1}, if $p = 1$, $\Pi_1$ is completely determined, and $s_{n(p+1)}^2(j)$ are different. In the next part, we will describe how the minimum on $p$ can be found under the new constraint.
+
+
+\subsection{Finding the Minimum $p$} 
+The problem of finding the minimum $p$ can be formulated as a mathematical optimization problem:
+
+\textbf{Optimization Problem 1 (OP1):}
+\begin{equation*}
+	\begin{aligned}
+		& \text{minimize}    & p 		&&\\
+		& \text{subject to}  & \frac{1}{p+1} \left(\sum_{i=0}^{p} \Pi_i(j)\right) & = \frac{1}{k} \qquad &\forall j \in \{1, \cdots, k\}, \\
+		& 					 & s^2(j) & = s^2(l) \qquad &\forall j,l \in \{1, \cdots, k\},\\
+		&					 & Cov(i, j) & = Cov(a, b) \qquad & \forall i \neq j, \ a \neq b \\
+		& 					 & \Pi_i(j) & \geq 0 \qquad &\forall i \in \{1, \cdots, p\}, \  j \in \{1, \cdots, k\}, \\
+		&					 & \sum_{j}\Pi_i(j) & = 1 \qquad &\forall i \in \{1, \cdots, p\}.
+	\end{aligned}
+\end{equation*}
+where $s^2(j) = \sum_{i= 0}^{p} \Pi_i(j) (1 - \Pi_i(j))$. It suffices to define $s^2(\cdot)$ this way because $s_{n(p+1)}^2(j)$ defined above is essentially $n \cdot s^2(j)$, and $n$ cancels when we demand $s_{n(p+1)}^2(j) = s_{n(p+1)}^2(l)$ for any $j, l$.
+
+The objective function in the problem is the number of paddings. We want to minimize the number of paddings, hence a minimization problem. The second line of the problem specifies the first condition we wish to impose on our encryption scheme, namely, we want the frequencies of the attributes to be identical in expectation. The third line demands the variances of the number of occurrences of the attributes to be the same. Finally, the last two lines are the standard conditions for $\Pi_i$'s to be probability mass functions.
+
+This problem is in fact very hard to solve. This is because it is not a standard optimization problem. It looks like a quadratic programming problem, but it is quadratic in the constraints. To tackle with the problem, we propose to guess $p$ incrementally, and use the following programming problem to determine if the given $p$ is feasible:
+
+\textbf{Optimization Problem 2 (OP2):}
+\begin{equation*} \label{OP2}
+	\begin{aligned}
+		& \text{minimize} &\sum_{l = 1}^{k} \left(\sum_{i = 0}^{p} \Pi_i(j) - \frac{p+1}{k}\right)^2  + \sum_{j = 0}^{k-1} \left(s^2(j) - s^2(j+1)\right)^2 + \left(s^2(0) - s^2(k)\right)^2 \\
+		&				  & + \sum_{\substack{i \neq j \\ a \neq b}} \left(Cov(i,j) - Cov(a,b)\right)^2 \\
+		& \text{subject to} &\Pi_i(j) \geq 0 \qquad \forall i \in \{1, \cdots, p\}, \  j \in \{1, \cdots, k\}, \\
+		&					 &\sum_{j}\Pi_i(j) = 1 \qquad \forall i \in \{1, \cdots, p\}.
+	\end{aligned}
+\end{equation*}
+
+As can be seen, the objective function has three parts. The first sum of squares is the condition on the mean of the number of occurrences of the attributes. The second sum of squares is the condition on the variance. The last sum of squares is the condition on the covariance. The objective function is non-negative, so if we obtain the minimum as 0, the first two constraints in optimization problem 1 are satisfied. As we are guessing with incrementing $p$, we are guaranteed to obtain the minimum value of $p$, if we can find the global optimum to optimization problem 2 with certainty.
+
+
+\subsection{Solving the Optimization Problem}
+Optimization problem 2 is known as a constrained polynomial optimization problem \cite{Mevissen07introductionto}. The optimization problem itself is known to be NP-hard. However, it is possible to approximate the solution as close as possible by solving a finite sequence of semidefinite programming problems \cite{doi:10.1137/S1052623400366802}. The technical details are beyond the scope of this project. However, software such as ncpol2sdpa \cite{Wittek:2015:A9N:2786970.2699464} is freely available online to solve optimization problems of this type.
+
+On a side note, we claim that $\lceil k \cdot \max_{j}{\Pi_0(j)} - 1 \rceil \leq p \leq k - 1$. The first inequality is immediate from equation \ref{lb on p}. To show the second inequality, we present a scheme with $k-1$ paddings. Define $\Pi_i(j)$'s for $i \geq 1$ as:
+
+\begin{equation*}
+	\Pi_i(j) = \begin{cases}
+		\Pi_{i-1}(j-1) & \text{if } j \geq 2 \\
+		\Pi_{i-1}(k)   & \text{otherwise}
+	\end{cases}.
+\end{equation*}
+
+Put it in words, each $\Pi_i$ is cyclic shift of $\Pi_{i-1}$ with wrap around. Because this is done $k-1$ times, $\sum_{i}\Pi_i(j) = 1$ for all $j$. Thus, $\frac{1}{p+1} \sum_{i}\Pi_i(j) = \frac{1}{k} \cdot 1 = \frac{1}{k}$ as required in equation \ref{first equation}. Equality of variances and covariances is obvious since cyclic shift preserves variance and covariance.
+
+Recall that the full padding scheme \texttt{Padding1} has $p = k -1$, and pad in a deterministic fashion. The upper bound derived in this case is not a very strong result. Though we conjecture that the upper bound can hardly be hit by the probabilistic padding scheme.
+
+
+\subsection{Encryption Scheme}
+Similar to \texttt{Padding2}, we define $\texttt{Padding3} = (Kg, Enc, Dec)$ where:
+
+\begin{figure}[H]
+\begin{center}
+\begin{pchstack}
+	\procedure[linenumbering]{$Kg(\Pi_0)$}{%
+		(\pk', \sk) \gets \overbar{Kg}	\\
+		\pcfor i = \lceil k \cdot \max_{j}{\Pi_0(j)} - 1 \rceil \cdots k\\
+		\t \text{Solve OP2 with i} \\
+		\t \pcif \text{OP2 solvable} \\
+		\t \t p \gets i \\
+		\t \t \{\Pi_i(j)\} \gets \text{Solution to OP2} \\
+		\t  \pcelse i \gets i + 1 \\
+		\pk \gets (\pk', p, \Pi_1, \cdots, \Pi_p)
+	}
+	
+	\pchspace
+	\procedure[linenumbering]{$Enc(\pk, m, D)$}{%
+		(\pk', p, \Pi_1, \cdots, \Pi_p) \gets \pk \\
+		(m_1, \cdots, m_n) \gets m \\
+		\pcfor i = 1, \cdots, n \\
+		\t D \gets \$(D, (\overbar{Enc_1}(m_i) || \overbar{Enc_2}(True))) \\
+		\t \pcfor i = 1 \cdots p	\\
+		\t \t x \sample \Pi_i	\\
+		\t \t D \gets \$(D, (\overbar{Enc_1}(x) || \overbar{Enc_2}(False))) \\
+		\pcreturn D
+	}
+\end{pchstack}
+\end{center}
+\caption{Encryption scheme for \texttt{Padding3}}
+\end{figure}
+
+
+and the decryption function is the same as the full padding scheme.
+
+
+\section{Discussion}
+In this chapter, we have shown three database encryption schemes based on deterministic encryption and padding. The fist algorithm \texttt{Padding1} is the full padding scheme. For each real entry to the database, we pad with all other attributes. This scheme is neither time nor space efficient. However, since it is deterministic padding, analysis of its security properties is relatively easy. On the other hand, \texttt{Padding2} and \texttt{Padding3} are probabilistic padding schemes. \texttt{Padding2} is a simple scheme that only requires expectation of the counts of the attributes to be the same. \texttt{Padding3} requires variance of the attributes and covariance between attributes to be equal too.

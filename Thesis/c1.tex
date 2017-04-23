@@ -1,0 +1,13 @@
+Cloud storage is a data storage model in which the digital data is stored remotely on servers owned by a third-party hosting company. It is a cheap alternative to local data storage and management, and has gain much popularity in industry. However, security becomes a real concern in this setting, as an evil man can extract useful information from the server itself or decipher database queries in some way.
+
+As a solution, many encrypted database (EDB) systems have been proposed. CryptoDB \cite{Popa:2011:CPC:2043556.2043566} in particular, is known as an EDB on relational databases which can handle SQL style queries. It is built on property preserving encryption schemes such as deterministic and order-preserving encryption.
+
+However, it has been proven that property preserving encryption schemes are not sufficient to protect the database system. The property preserved by the encryption scheme can often leak enough information for the attacker to recover something from the EDB. Furthermore, the queries made by the client to the server can be used to generate statistical attack.
+
+In this project, we aim to address the earlier security concern. The thesis is organised in the following way:
+\begin{itemize}
+\item In chapter 2, we will review relevant literature on property-preserving encryption schemes. We will show that although the schemes are proven secure in their security notions, practical security is not achieved in database applications.
+\item In chapter 3, we will motivate and derive three padding based encryption schemes.
+\item In chapter 4, we will propose new security notions for database encryptions analyse security of the schemes we have proposed in chapter 3.
+\item In chapter 5, we will conclude our studies.
+\end{itemize}

@@ -1,0 +1,44 @@
+In this chapter, we will summarize the main results and conclude our studies.
+
+
+\section{Summary of Results}
+In the studies, we have seen that the current implementations of EDB based on property-preserving encryption schemes are not practical secure even though the underlying schemes have security guarantees under their security notions. This happens because either the assumptions of the security notion are not met, or the security notion itself is not strong enough to protect EDB from practical attacks (such as frequency attack).
+
+We have constructed alternative schemes as an attempt to defeat statistical attacks on the database. The schemes are based on padding, so as to hide any statistical information in the EDB. \texttt{Padding1} is the full padding scheme which hides all statistical information. However, it is not space efficient hence not a practical scheme. We modified the scheme to pad probabilistically, giving us \texttt{Padding2} and \texttt{Padding3}.
+
+To analyse the security of the new schemes, we proposed new security notion IND-DIST-CPA (reduced to IND-DIST later), and IND-STAT and proven some key results:
+\begin{enumerate}
+\item \texttt{Padding1} and \texttt{Padding3} are IND-DIST-CPA and IND-DIST secure,
+\item IND-DIST-CPA and IND-STAT are not comparable notions, and
+\item \texttt{Padding1} and \texttt{Padding3} are IND-STAT secure.
+\end{enumerate}
+
+In the process to show IND-DIST-CPA and IND-STAT are not comparable, we proposed a new type of statistical attack known as variance attack. This attack can differentiate variables with the same mean and different variance with provable success rate.
+
+
+
+
+\section{Practical Concerns with Proposed Encryption Schemes}
+The number of dummy insertions for all the proposed schemes are related to the number of attributes in the database. In practice, this can be a huge number. As a numerical example, suppose that the database has 10 columns, and each column has 4 possible values to take. That means there are $4^{10} = 2^{20}$ attributes in total. This is simply impractical for \texttt{Padding1}. For \texttt{Padding3}, optimization problem 2 in section \ref{OP2} may be impossible to solve in reasonable amount of time.
+
+To tackle with this problem, we propose to use \texttt{Padding3} on groups of columns for which the user really want to hide correlation. For instance, in medical records, we want to encrypt diagnosis of disease and treatment together (a pair corresponds to an attribute) but we may not care about the correlation between admission date and gender so they can be encrypted separately.
+
+It is also advised to encrypt columns with small attribute space using conventional probabilistic encryption scheme. This is because the security guarantee of our padding based schemes do depend on the number of attributes in the columns.
+
+
+
+
+\section{Further Work}
+So far our scheme aims to protect the users from faithful but curious service provider in terms of storage. But in practice, the adversary has other means to attack the database. For instance, our construction requires shuffling of rows in the database. A dishonest service provider does not necessarily follow the rules. If he knows the underlying plaintext, and a few groups of the insertions, he can just take intersection of those groups to find out the common ciphertext - which will certainly be the encryption to the plaintext above.
+
+There are many more leakage based attacks possible. \cite{cryptoeprint:2016:718} provides an excellent account on them. For instance, the adversary may use queries to recover the underlying plaintexts via frequency attack similar to \cite{Naveed:2015:IAP:2810103.2813651}. \cite{Islam12accesspattern, Liu:2014:SPL:2580107.2580271} have proposed query schemes to protect the users from the later attack. But they are not successful in hiding user queries once the access pattern is leaked.
+
+In the future, we wish to give new security notions to incorporate user queries and other mechanisms which may leak information. We want to develop new schemes which can achieve provable security under the new notions.
+
+
+
+
+
+
+
+

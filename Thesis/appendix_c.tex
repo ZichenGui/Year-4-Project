@@ -1,0 +1,19 @@
+\chapter{Proof of Theorem \ref{thm lb on statistical distance}} \label{Proof of lb on statistical distance}
+
+\textit{Proof:} The lower bound comes from the centre part of the integral. The proof is nothing more than direct computation. First of all, we wish to find the intersection points of the two pdf's. This is done by setting the two pdf's equal, and solve for $x$:
+\begin{align*}
+\frac{1}{\sqrt{2\pi \sigma^2}} \exp \left\{ -\frac{(x - \mu)^2}{2\sigma^2} \right\} & = \frac{1}{\sqrt{2\pi \gamma^2 \sigma^2}} \exp \left\{ -\frac{(x - \mu)^2}{2 \gamma^2\sigma^2}\right\} \\
+\gamma & = \exp  \left\{ \frac{(x - \mu)^2}{2\sigma^2} - \frac{(x - \mu)^2}{2 \gamma^2\sigma^2} \right\} \\
+\log(\gamma) & = \frac{(x - \mu)^2}{2\sigma^2} - \frac{(x - \mu)^2}{2 \gamma^2\sigma^2} \\
+2 \gamma^2\sigma^2 \log(\gamma) & = (\gamma^2 - 1) (x - \mu)^2 \\
+x &= \mu \pm \left( \frac{2 \gamma^2\sigma^2}{\gamma^2 - 1} \log(\gamma) \right)^{0.5} \\
+x &= \mu \pm \gamma \sigma \left( \frac{2}{\gamma^2 - 1} \log(\gamma) \right)^{0.5} \numberthis \label{pdf intersections}
+\end{align*}
+
+Then it is immediate that:
+\begin{align*}
+d(D_1, D_2) = & \int_{-\infty}^{\infty} \lvert p_1(x) - p_2(x) \rvert \  dx \\
+\geq & \int_{\mu - \left( \frac{2 \gamma^2\sigma^2}{\gamma^2 - 1} \log(\gamma) \right)^{0.5}}^{\mu + \left( \frac{2 \gamma^2\sigma^2}{\gamma^2 - 1} \log(\gamma) \right)^{0.5}} \lvert p_1(x) - p_2(x) \rvert \  dx \\
+=   & \int_{\mu - \left( \frac{2 \gamma^2\sigma^2}{\gamma^2 - 1} \log(\gamma) \right)^{0.5}}^{\mu + \left( \frac{2 \gamma^2\sigma^2}{\gamma^2 - 1} \log(\gamma) \right)^{0.5}}  p_2(x) - p_1(x) \  dx \\
+=   & 2 \cdot \left( \Phi\left( \gamma\left( \frac{2}{\gamma^2 - 1} \log(\gamma) \right)^{0.5} \right) - \Phi\left( \left( \frac{2}{\gamma^2 - 1} \log(\gamma) \right)^{0.5} \right) \right). \square
+\end{align*}
