@@ -1,0 +1,309 @@
+\begin{thebibliography}{10}
+
+\bibitem{Abdalla2005}
+Michel Abdalla, Mihir Bellare, Dario Catalano, Eike Kiltz, Tadayoshi Kohno,
+  Tanja Lange, John Malone-Lee, Gregory Neven, Pascal Paillier, and Haixia Shi.
+\newblock {\em Searchable Encryption Revisited: Consistency Properties,
+  Relation to Anonymous IBE, and Extensions}, pages 205--222.
+\newblock Springer Berlin Heidelberg, Berlin, Heidelberg, 2005.
+
+\bibitem{Agrawal:2004:OPE:1007568.1007632}
+Rakesh Agrawal, Jerry Kiernan, Ramakrishnan Srikant, and Yirong Xu.
+\newblock Order preserving encryption for numeric data.
+\newblock In {\em Proceedings of the 2004 ACM SIGMOD International Conference
+  on Management of Data}, SIGMOD '04, pages 563--574, New York, NY, USA, 2004.
+  ACM.
+
+\bibitem{Baek2008}
+Joonsang Baek, Reihaneh Safavi-Naini, and Willy Susilo.
+\newblock {\em Public Key Encryption with Keyword Search Revisited}, pages
+  1249--1259.
+\newblock Springer Berlin Heidelberg, Berlin, Heidelberg, 2008.
+
+\bibitem{Bellare2007}
+Mihir Bellare, Alexandra Boldyreva, and Adam O'Neill.
+\newblock {\em Deterministic and Efficiently Searchable Encryption}, pages
+  535--552.
+\newblock Springer Berlin Heidelberg, Berlin, Heidelberg, 2007.
+
+\bibitem{Bellare2008}
+Mihir Bellare, Marc Fischlin, Adam O'Neill, and Thomas Ristenpart.
+\newblock {\em Deterministic Encryption: Definitional Equivalences and
+  Constructions without Random Oracles}, pages 360--378.
+\newblock Springer Berlin Heidelberg, Berlin, Heidelberg, 2008.
+
+\bibitem{doi:10.1137/0213053}
+Manuel Blum and Silvio Micali.
+\newblock How to generate cryptographically strong sequences of pseudorandom
+  bits.
+\newblock {\em SIAM Journal on Computing}, 13(4):850--864, 1984.
+
+\bibitem{Boldyreva:2009:OSE:1533674.1533691}
+Alexandra Boldyreva, Nathan Chenette, Younho Lee, and Adam O'Neill.
+\newblock Order-preserving symmetric encryption.
+\newblock In {\em Proceedings of the 28th Annual International Conference on
+  Advances in Cryptology: The Theory and Applications of Cryptographic
+  Techniques}, EUROCRYPT '09, pages 224--241, Berlin, Heidelberg, 2009.
+  Springer-Verlag.
+
+\bibitem{Boldyreva:2011:OER:2033036.2033080}
+Alexandra Boldyreva, Nathan Chenette, and Adam O'Neill.
+\newblock Order-preserving encryption revisited: Improved security analysis and
+  alternative solutions.
+\newblock In {\em Proceedings of the 31st Annual Conference on Advances in
+  Cryptology}, CRYPTO'11, pages 578--595, Berlin, Heidelberg, 2011.
+  Springer-Verlag.
+
+\bibitem{Boldyreva2008}
+Alexandra Boldyreva, Serge Fehr, and Adam O'Neill.
+\newblock {\em On Notions of Security for Deterministic Encryption, and
+  Efficient Constructions without Random Oracles}, pages 335--359.
+\newblock Springer Berlin Heidelberg, Berlin, Heidelberg, 2008.
+
+\bibitem{Boneh2004}
+Dan Boneh, Giovanni Di~Crescenzo, Rafail Ostrovsky, and Giuseppe Persiano.
+\newblock {\em Public Key Encryption with Keyword Search}, pages 506--522.
+\newblock Springer Berlin Heidelberg, Berlin, Heidelberg, 2004.
+
+\bibitem{Boneh2007}
+Dan Boneh and Brent Waters.
+\newblock {\em Conjunctive, Subset, and Range Queries on Encrypted Data}, pages
+  535--554.
+\newblock Springer Berlin Heidelberg, Berlin, Heidelberg, 2007.
+
+\bibitem{Boyen2006}
+Xavier Boyen and Brent Waters.
+\newblock {\em Anonymous Hierarchical Identity-Based Encryption (Without Random
+  Oracles)}, pages 290--307.
+\newblock Springer Berlin Heidelberg, Berlin, Heidelberg, 2006.
+
+\bibitem{cryptoeprint:2012:078}
+Zvika Brakerski.
+\newblock Fully homomorphic encryption without modulus switching from classical
+  gapsvp.
+\newblock Cryptology ePrint Archive, Report 2012/078, 2012.
+\newblock \url{http://eprint.iacr.org/2012/078}.
+
+\bibitem{cryptoeprint:2011:277}
+Zvika Brakerski, Craig Gentry, and Vinod Vaikuntanathan.
+\newblock Fully homomorphic encryption without bootstrapping.
+\newblock Cryptology ePrint Archive, Report 2011/277, 2011.
+\newblock \url{http://eprint.iacr.org/2011/277}.
+
+\bibitem{doi:10.1201/1086/44530.13.3.20040701/83065.3}
+R.~Brinkman, L.~Feng, J.~Doumen, P.~H. Hartel, and W.~Jonker.
+\newblock Efficient tree search in encrypted data.
+\newblock {\em Information Systems Security}, 13(3):14--21, 2004.
+
+\bibitem{cryptoeprint:2016:718}
+David Cash, Paul Grubbs, Jason Perry, and Thomas Ristenpart.
+\newblock Leakage-abuse attacks against searchable encryption.
+\newblock Cryptology ePrint Archive, Report 2016/718, 2016.
+\newblock \url{http://eprint.iacr.org/2016/718}.
+
+\bibitem{Chang2005}
+Yan-Cheng Chang and Michael Mitzenmacher.
+\newblock {\em Privacy Preserving Keyword Searches on Remote Encrypted Data},
+  pages 442--455.
+\newblock Springer Berlin Heidelberg, Berlin, Heidelberg, 2005.
+
+\bibitem{Codd:1970:RMD:362384.362685}
+E.~F. Codd.
+\newblock A relational model of data for large shared data banks.
+\newblock {\em Commun. ACM}, 13(6):377--387, June 1970.
+
+\bibitem{Damiani:2003:BCE:948109.948124}
+Ernesto Damiani, S.~De~Capitani Vimercati, Sushil Jajodia, Stefano Paraboschi,
+  and Pierangela Samarati.
+\newblock Balancing confidentiality and efficiency in untrusted relational
+  dbmss.
+\newblock In {\em Proceedings of the 10th ACM Conference on Computer and
+  Communications Security}, CCS '03, pages 93--102, New York, NY, USA, 2003.
+  ACM.
+
+\bibitem{Gentry:2009:FHE:1536414.1536440}
+Craig Gentry.
+\newblock Fully homomorphic encryption using ideal lattices.
+\newblock In {\em Proceedings of the Forty-first Annual ACM Symposium on Theory
+  of Computing}, STOC '09, pages 169--178, New York, NY, USA, 2009. ACM.
+
+\bibitem{cryptoeprint:2013:340}
+Craig Gentry, Amit Sahai, and Brent Waters.
+\newblock Homomorphic encryption from learning with errors:
+  Conceptually-simpler, asymptotically-faster, attribute-based.
+\newblock Cryptology ePrint Archive, Report 2013/340, 2013.
+\newblock \url{http://eprint.iacr.org/2013/340}.
+
+\bibitem{goh03}
+Eu-Jin Goh.
+\newblock Secure indexes.
+\newblock Cryptology ePrint Archive, Report 2003/216, 2003.
+\newblock \url{http://eprint.iacr.org/2003/216/}.
+
+\bibitem{Goldreich:1989:HPO:73007.73010}
+O.~Goldreich and L.~A. Levin.
+\newblock A hard-core predicate for all one-way functions.
+\newblock In {\em Proceedings of the Twenty-first Annual ACM Symposium on
+  Theory of Computing}, STOC '89, pages 25--32, New York, NY, USA, 1989. ACM.
+
+\bibitem{Goldwasser:1982:PEA:800070.802212}
+Shafi Goldwasser and Silvio Micali.
+\newblock Probabilistic encryption \&amp; how to play mental poker keeping
+  secret all partial information.
+\newblock In {\em Proceedings of the Fourteenth Annual ACM Symposium on Theory
+  of Computing}, STOC '82, pages 365--377, New York, NY, USA, 1982. ACM.
+
+\bibitem{GOLDWASSER1984270}
+Shafi Goldwasser and Silvio Micali.
+\newblock Probabilistic encryption.
+\newblock {\em Journal of Computer and System Sciences}, 28(2):270 -- 299,
+  1984.
+
+\bibitem{Golle2004}
+Philippe Golle, Jessica Staddon, and Brent Waters.
+\newblock {\em Secure Conjunctive Keyword Search over Encrypted Data}, pages
+  31--45.
+\newblock Springer Berlin Heidelberg, Berlin, Heidelberg, 2004.
+
+\bibitem{Hacigumus:2002:ESO:564691.564717}
+Hakan Hacig\"{u}m\"{u}\c{s}, Bala Iyer, Chen Li, and Sharad Mehrotra.
+\newblock Executing sql over encrypted data in the database-service-provider
+  model.
+\newblock In {\em Proceedings of the 2002 ACM SIGMOD International Conference
+  on Management of Data}, SIGMOD '02, pages 216--227, New York, NY, USA, 2002.
+  ACM.
+
+\bibitem{Hacıgümüş2004}
+Hakan Hac{\i}g{\"u}m{\"u}{\c{s}}, Bala Iyer, and Sharad Mehrotra.
+\newblock {\em Efficient Execution of Aggregation Queries over Encrypted
+  Relational Databases}, pages 125--136.
+\newblock Springer Berlin Heidelberg, Berlin, Heidelberg, 2004.
+
+\bibitem{HElib}
+Shai Halevi and Victor Shoup.
+\newblock {HE}lib: An implementation of homomorphic encryption., 2013.
+
+\bibitem{Hore:2004:PIR:1316689.1316752}
+Bijit Hore, Sharad Mehrotra, and Gene Tsudik.
+\newblock A privacy-preserving index for range queries.
+\newblock In {\em Proceedings of the Thirtieth International Conference on Very
+  Large Data Bases - Volume 30}, VLDB '04, pages 720--731. VLDB Endowment,
+  2004.
+
+\bibitem{Islam12accesspattern}
+Mohammad~Saiful Islam, Mehmet Kuzu, and Murat Kantarcioglu.
+\newblock Access pattern disclosure on searchable encryption: Ramification,
+  attack and mitigation.
+\newblock In {\em in Network and Distributed System Security Symposium (NDSS},
+  2012.
+
+\bibitem{Iyer2004}
+Bala Iyer, Sharad Mehrotra, Einar Mykletun, Gene Tsudik, and Yonghua Wu.
+\newblock {\em A Framework for Efficient Storage Security in RDBMS}, pages
+  147--164.
+\newblock Springer Berlin Heidelberg, Berlin, Heidelberg, 2004.
+
+\bibitem{Jonsson:2003:PCS:RFC3447}
+J.~Jonsson and B.~Kaliski.
+\newblock Public-key cryptography standards (pkcs) \#1: Rsa cryptography
+  specifications version 2.1, 2003.
+
+\bibitem{doi:10.1137/S1052623400366802}
+Jean~B. Lasserre.
+\newblock Global optimization with polynomials and the problem of moments.
+\newblock {\em SIAM Journal on Optimization}, 11(3):796--817, 2001.
+
+\bibitem{Lewi:2016:OEN:2976749.2978376}
+Kevin Lewi and David~J. Wu.
+\newblock Order-revealing encryption: New constructions, applications, and
+  lower bounds.
+\newblock In {\em Proceedings of the 2016 ACM SIGSAC Conference on Computer and
+  Communications Security}, CCS '16, pages 1167--1178, New York, NY, USA, 2016.
+  ACM.
+
+\bibitem{Li2005}
+Jun Li and Edward~R. Omiecinski.
+\newblock {\em Efficiency and Security Trade-Off in Supporting Range Queries on
+  Encrypted Databases}, pages 69--83.
+\newblock Springer Berlin Heidelberg, Berlin, Heidelberg, 2005.
+
+\bibitem{Liu:2014:SPL:2580107.2580271}
+Chang Liu, Liehuang Zhu, Mingzhong Wang, and Yu-An Tan.
+\newblock Search pattern leakage in searchable encryption: Attacks and new
+  construction.
+\newblock {\em Inf. Sci.}, 265:176--188, May 2014.
+
+\bibitem{cryptoeprint:2013:094}
+Adriana Lopez-Alt, Eran Tromer, and Vinod Vaikuntanathan.
+\newblock On-the-fly multiparty computation on the cloud via multikey fully
+  homomorphic encryption.
+\newblock Cryptology ePrint Archive, Report 2013/094, 2013.
+\newblock \url{http://eprint.iacr.org/2013/094}.
+
+\bibitem{Mevissen07introductionto}
+Martin Mevissen.
+\newblock Introduction to concepts and advances in polynomial optimization,
+  2007.
+
+\bibitem{Naveed:2015:IAP:2810103.2813651}
+Muhammad Naveed, Seny Kamara, and Charles~V. Wright.
+\newblock Inference attacks on property-preserving encrypted databases.
+\newblock In {\em Proceedings of the 22Nd ACM SIGSAC Conference on Computer and
+  Communications Security}, CCS '15, pages 644--655, New York, NY, USA, 2015.
+  ACM.
+
+\bibitem{Ozsoyoglu2004}
+Gultekin Ozsoyoglu, David~A. Singer, and Sun~S. Chung.
+\newblock {\em Anti-Tamper Databases}, pages 133--146.
+\newblock Springer US, Boston, MA, 2004.
+
+\bibitem{Popa:2011:CPC:2043556.2043566}
+Raluca~Ada Popa, Catherine M.~S. Redfield, Nickolai Zeldovich, and Hari
+  Balakrishnan.
+\newblock Cryptdb: Protecting confidentiality with encrypted query processing.
+\newblock In {\em Proceedings of the Twenty-Third ACM Symposium on Operating
+  Systems Principles}, SOSP '11, pages 85--100, New York, NY, USA, 2011. ACM.
+
+\bibitem{Song:2000:PTS:882494.884426}
+Dawn~Xiaodong Song, David Wagner, and Adrian Perrig.
+\newblock Practical techniques for searches on encrypted data.
+\newblock In {\em Proceedings of the 2000 IEEE Symposium on Security and
+  Privacy}, SP '00, pages 44--, Washington, DC, USA, 2000. IEEE Computer
+  Society.
+
+\bibitem{VANEMDEBOAS197780}
+P.~van Emde~Boas.
+\newblock Preserving order in a forest in less than logarithmic time and linear
+  space.
+\newblock {\em Information Processing Letters}, 6(3):80 -- 82, 1977.
+
+\bibitem{Wang:2006:ESQ:1182635.1164140}
+Hui Wang and Laks V.~S. Lakshmanan.
+\newblock Efficient secure query evaluation over encrypted xml databases.
+\newblock In {\em Proceedings of the 32Nd International Conference on Very
+  Large Data Bases}, VLDB '06, pages 127--138. VLDB Endowment, 2006.
+
+\bibitem{Williams:1976:MHS:503561.503582}
+Louis~F. Williams, Jr.
+\newblock A modification to the half-interval search (binary search) method.
+\newblock In {\em Proceedings of the 14th Annual Southeast Regional
+  Conference}, ACM-SE 14, pages 95--101, New York, NY, USA, 1976. ACM.
+
+\bibitem{Wittek:2015:A9N:2786970.2699464}
+Peter Wittek.
+\newblock Algorithm 950: Ncpol2sdpa\&mdash;sparse semidefinite programming
+  relaxations for polynomial optimization problems of noncommuting variables.
+\newblock {\em ACM Trans. Math. Softw.}, 41(3):21:1--21:12, June 2015.
+
+\bibitem{Yang2017266}
+Ce~Yang, Weiming Zhang, and Nenghai Yu.
+\newblock Semi-order preserving encryption.
+\newblock {\em Information Sciences}, 387:266 -- 279, 2017.
+
+\bibitem{4568378}
+A.~C. Yao.
+\newblock Theory and application of trapdoor functions.
+\newblock In {\em 23rd Annual Symposium on Foundations of Computer Science
+  (sfcs 1982)}, pages 80--91, Nov 1982.
+
+\end{thebibliography}

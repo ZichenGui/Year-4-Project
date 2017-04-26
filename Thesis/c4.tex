@@ -5,7 +5,8 @@ The goal of the adversary can be divided into two categories: 1) differentiate o
 The key difference between PRIV adversary and adversaries considered in this chapter is that:
 \begin{enumerate}
 \item The adversary has access to the public key throughout the attack.
-\item The adversary has access to the messages he challenged with throughout the attack.
+\item The adversary has access to the message set throughout the attack.
+\item The adversary has access to the distribution of messages he challenged with throughout the attack.
 \item The message space need not have high min-entropy.
 \end{enumerate}
 These assumptions give the adversary much more power but those things could indeed happen in practice. It is important to note that by giving the adversary the abilities above, he essentially has access to the decryption oracle too since the message space is usually polynomial in size.
@@ -16,7 +17,7 @@ In this section, we assume that the databases have same dimensions: they have th
 
 
 \section{Indistinguishability of distribution under chosen-plaintext attack (IND-DIST-CPA)}
-The goal of the adversary in IND-DIST-CPA is to differentiate two databases with the same message space and different input distributions, with the power of encryption oracle to $DE$ and $PE$. Let the encryption scheme be $\Sigma = (Kg, \mathcal{E}, \mathcal{D})$. We define the IND-DIST-CPA adversary as $I = (I_d, I_m, I_g)$ where $I_d$ is the message set and input distribution generation algorithm that takes the security parameter $1^k$, the public keys to $DE$ and $PE$, and generates a message set $M$, two input distributions $\Gamma_0$ and $\Gamma_1$, and number of input messages $n$. $I_m$ is the message generation algorithm that takes in the security parameter $1^k$, public key $\pk$, and output of $I_d$, and generates two sequences of $n$ input messages $(m_0, m_1)$ sampled from $\Gamma_0$ and $\Gamma_1$ respectively. The challenger encrypts $m_b$ under the public key $\pk$ and returns the encrypted database $D$ to the adversary. Finally, $I_g$ is the guessing algorithm which takes input $1^k$, public key $\pk$, encrypted database $D$, output of $I_d$ and $I_m$, and returns $b'$ as the guess to the bit $b$.
+The goal of the adversary in IND-DIST-CPA is to differentiate two databases with the same message space and different input distributions, with the power of encryption oracle to $DE$ and $PE$. Let the encryption scheme be $\Sigma = (Kg, \mathcal{E}, \mathcal{D})$. We define the IND-DIST-CPA adversary as $I = (I_d, I_m, I_g)$ where $I_d$ is the message set and input distribution generation algorithm that takes the security parameter $1^k$, the public keys to $DE$ and $PE$, and generates a message set $M$, two input distributions $\Gamma_0$ and $\Gamma_1$, and number of input messages $n$. $I_m$ is the message generation algorithm that takes in the security parameter $1^k$, public key $\pk$ (associated to $\pk'$ and $\Gamma_b$), and output of $I_d$, and generates two sequences of $n$ input messages $(m_0, m_1)$ sampled from $\Gamma_0$ and $\Gamma_1$ respectively. The challenger encrypts $m_b$ under the public key $\pk$ and returns the encrypted database $D$ to the adversary. Finally, $I_g$ is the guessing algorithm which takes input $1^k$, public key $\pk$, encrypted database $D$, output of $I_d$, and returns $b'$ as the guess to the bit $b$.
 
 We abuse the notation and write $Kg(1^k)$ to mean the key generation algorithm without specifying the input distribution, and $(\pk', \Gamma)$ to mean the public key associated to input distribution $\Gamma$. Then the adversary can be described as:
 \begin{figure}[H]
@@ -27,7 +28,7 @@ We abuse the notation and write $Kg(1^k)$ to mean the key generation algorithm w
 		\pcln (M, \Gamma_0, \Gamma_1, n) \gets I_d(1^k, \pk') \\
 		\pcln (m_0, m_1) \gets I_m(1^k, \pk', M, \Gamma_0, \Gamma_1, n) \\
 		\pcln D \gets \mathcal{E}(1^k, (\pk', \Gamma_b), m_b) \\
-		\pcln b' \gets I_g(1^k, \pk', D, M, \Gamma_0, \Gamma_1, n, m_0, m_1) \\
+		\pcln b' \gets I_g(1^k, \pk', D, M, \Gamma_0, \Gamma_1, n) \\
 		\pcln \pcreturn (b' = b)
 		}
 	\end{center}
@@ -69,7 +70,8 @@ For adversary A, we set the message generation algorithm to be a deterministic a
 		  	\pcln \t \t D \gets \$(D, (\overbar{Enc_1}(x_i) \ ||\ c)) \\
 		  	\pcln \t \pcelse D \gets \$(D, (\overbar{Enc_1}(x_i) \ ||\ \overbar{enc_2}(True))) \\
 		  	\pcln \t \pcfor x \in C \backslash \{x_i\} \\
-		  	\pcln \t \t D \gets \$(D, (\overbar{Enc_1}(x) \ ||\ \overbar{Enc_2}(False)))
+		  	\pcln \t \t D \gets \$(D, (\overbar{Enc_1}(x) \ ||\ \overbar{Enc_2}(False))) \\
+		  	\pcln \pcreturn D
 		}
 	\end{center}
 	\caption{Modified encryption scheme from \texttt{Padding1}}
@@ -89,14 +91,29 @@ But all these happens with probability bounded by the advantage of IND-DIST-CPA 
 \end{theorem}
 
 \textit{Proof:} Let $\xi_1, \cdots, \xi_k$ be the counts of the attributes in the encrypted database. Recall in theorem \ref{thm frequency dist} we have shown that $\xi_i$'s have the same distribution. Given that the input distribution is $\Gamma$, we must have
-\begin{equation*}
-	\prob{(\xi_1, \cdots, \xi_k) \mid \Gamma} = \prob{(\xi_1, \cdots, \xi_k)},
-\end{equation*}
+\begin{equation}
+	\prob{(\xi_1, \cdots, \xi_k) \mid \Gamma} = \prob{(\xi_1, \cdots, \xi_k)}, \label{indep of dist}
+\end{equation}
 that is, the joint distribution of the counts is independent of the input distribution. Therefore, we conclude that
 \begin{equation*}
 	\prob{(\xi_1, \cdots, \xi_k) \mid \Gamma_0} = \prob{(\xi_1, \cdots, \xi_k) \mid \Gamma_1},
 \end{equation*}
 for any input distributions $\Gamma_0$ and $\Gamma_1$. In particular, the adversary has no advantage to tell if the encrypted database comes from the first distribution or the second. Therefore, the problem is reduced to theorem \ref{thm IND-DIST-CPA 1}, hence the advantage stated above. $\square$
+
+
+It is important for the adversary of \texttt{Padding3} to have no access to the input messages he generated with $I_m$ or the security goal is not achievable. Indeed, the adversary can run its message set and input distribution generation algorithm $I_d$ such that $\Gamma = \Gamma_0 = \Gamma_1$ and samples $m_0$ and $m_1$ from $\Gamma$. Suppose that attribute 1 occurs $n_0$ times in $m_0$ and $n_1$ times in $m_1$. The adversary also knows that attribute 1 occurs $N$ times in the encrypted database as he essentially has the decryption oracle to the attribute column. Note that in this setting, randomness in the count to attribute 1 in the encrypted database comes solely from the dummy rows so the likelihood of observing $N$ as a realization of $m_0$ or $m_1$ can be computed explicitly:
+\begin{align*}
+	& \prob{N \text{ is a realization of } m_b} \propto \prob{\mathcal{N}\left( \mu, \sigma^2 \right) = N - n_b} \text{ where} \\
+	& \mu = n \cdot \left( \frac{p+1}{k} - \Gamma(1) \right) \text{ and } \\
+	& \sigma^2 = n \cdot \left( s^2(1) - \Gamma(1) (1 - \Gamma(1)) \right).
+\end{align*}
+In the expression, $N$ is fixed as soon as the encryption occurs so the likelihoods depends on $n_b$ exclusively. If $n_0$ and $n_1$ happen to be very far from each other, we can guess $b$ with high confidence.
+
+On the other hand, \texttt{Padding1} remains secure even if $(m_0, m_1)$ is given to $I_g$. This is because the counts of the attributes are fixed regardless of the input messages. Mathematically, instead of equation \ref{indep of dist}, we have a stronger result:
+\begin{equation*}
+	\prob{(\xi_1, \cdots, \xi_k) \mid m} = \prob{(\xi_1, \cdots, \xi_k)}
+\end{equation*}
+for any input messages $m$ that is length $n$ long. Whence the only way to guess $b$ is to decipher the auxiliary column. But we know that the auxiliary column is encrypted by $PE$ which is IND-CPA secure, so security of \texttt{Padding1} follows in this case.
 
 
 
@@ -105,14 +122,15 @@ for any input distributions $\Gamma_0$ and $\Gamma_1$. In particular, the advers
 In this section, we consider a somewhat weak adversary who has no access to the encryption oracle to $DE$. His goal is to identify at least a pair of plaintext-ciphertext, given that he knows the set of plaintexts and their frequencies in the database. In fact, in the security model, we give him much more power - he has the freedom to choose what database he wants to encrypt, and in which order the plaintexts should appear.
 
 
-Let the encryption scheme be $\Sigma = (Kg, \mathcal{E}, \mathcal{D})$. We define the IND-STAT adversary as $I = (I_m, I_g)$ where $I_m$ is the message generation algorithm that takes in the security parameter $1^k$, public key $\pk$ and generates a sequence of messages $M = \{m_1, \cdots, m_n\}$. $I_g$ is the guessing algorithm which takes input security parameter $1^k$, public key $\pk$, encrypted database $D$ and messages $M$, and returns a pair of message and ciphertext $(m, c)$. He wins if he can identify a valid pair with probability significantly higher than $\frac{1}{k}$, where $k$ is the number of attributes in the database.
+Let the encryption scheme be $\Sigma = (Kg, \mathcal{E}, \mathcal{D})$. We define the IND-STAT adversary as $I = (I_d, I_m, I_g)$ where $I_d$ is the message set and input distribution generation algorithm that takes the security parameter $1^k$, the public keys to $DE$ and $PE$, and generates a message set $M$, an input distribution $\Gamma$, and the number of input messages $n$. $I_m$ is the message generation algorithm that takes in the security parameter $1^k$, public key $\pk$ (associated to $\pk'$ and $\Gamma_b$) and number of input messages $n$ and generates a sequence of messages $(m_1, \cdots, m_n)$. $I_g$ is the guessing algorithm which takes input security parameter $1^k$, public key $\pk$, encrypted database $D$ and input messages $(m_1, \cdots, m_n)$, and returns a pair of message and ciphertext $(m, c)$. He wins if he can identify a valid pair with probability significantly higher than $\frac{1}{k}$, where $k$ is the number of attributes in the database.
 \begin{figure}[H]
 	\begin{center}
 		\procedure{$\text{Exp}_{\text{$\Sigma$, I}}^{\text{IND-STAT}}(1^k)$}{%
-			\pcln (\pk, \sk) \gets Kg(1^k) \\
-			\pcln M = \{m_b^1, \cdots, m_b^n\} \gets I_m(1^k, \pk) \\
-			\pcln D \gets \mathcal{E}(1^k, \pk, \{m_b^1, \cdots, m_b^n\}) \\
-			\pcln (m, c) \gets I_g(1^k, \pk, D, M) \\
+			\pcln (\pk', \sk) \gets Kg(1^k) \\
+			\pcln (\Gamma, M, n) \gets I_d(1^k, \pk') \\
+			\pcln (m_1, \cdots, m_n) \gets I_m(1^k, \pk', \Gamma, n) \\
+			\pcln D \gets \mathcal{E}(1^k, \pk', \Gamma, (m_1, \cdots, m_n)) \\
+			\pcln (m, c) \gets I_g(1^k, \pk', \Gamma, D, (m_1, \cdots, m_n)) \\
 			\pcln \pcreturn (m, c)
 		}
 	\end{center}
@@ -144,7 +162,7 @@ Intuitively speaking, IND-DIST-CPA captures the security goal where given two da
 To prove the statement, we wish to construct a scheme that is IND-DIST-CPA secure but not IND-STAT secure. 
 
 \textbf{Part 1: \texttt{Padding2}$^{+}$ is IND-DIST-CPA secure} \\
-\texttt{Padding2} in general is not IND-DIST-CPA secure. This is because the counts on the attributes converges to different distributions. However, if we restrict the scheme to a subset of input distributions that are close to each other, it is possible to achieve IND-DIST-CPA security. Formally, we define \texttt{Padding2$^+$} to be the same as \texttt{Padding2}, except that the message distribution is constrained the following way. Let $\Pi$ be some distribution on the message space, we require all message distributions $\Pi_0$ challenged by the adversary to be such that $\Pi(j) = \Pi_0(j) \ \forall j \geq 3$, and $\abs{\Pi_0(j) - \Pi_i(j)} \leq \delta$ for some $\delta << 1$. To distinguish the two databases, with $n$ insertions, the advantage of the adversary $I$ is
+\texttt{Padding2} in general is not IND-DIST-CPA secure. This is because the counts on the attributes converges to different distributions. However, if we restrict the scheme to a subset of input distributions that are close to each other, it is possible to achieve IND-DIST-CPA security \footnote{We can simply restrict \texttt{Padding2} to fixed input distribution, but that would be uninteresting.}. Formally, we define \texttt{Padding2$^+$} to be the same as \texttt{Padding2}, except that the message distribution is constrained the following way. Let $\Pi$ be some distribution on the message space, we require all message distributions $\Pi_0$ challenged by the adversary to be such that $\Pi(j) = \Pi_0(j) \ \forall j \geq 3$, and $\abs{\Pi_0(j) - \Pi_i(j)} \leq \delta$ for some $\delta << 1$. To distinguish the two databases, with $n$ insertions, the advantage of the adversary $I$ is
 \begin{equation}
 	\text{Adv}_{\text{$\Sigma$, I}}^{\text{IND-DIST-CPA}}(D) \leq \text{Adv}_{\text{$PE$, A}}^{\text{IND-CPA}} + \abs{\prob{0 \leftarrow B_{\text{stat}}(D)} - \prob{1 \leftarrow B_{\text{stat}}(D)}}
 \end{equation}
@@ -301,7 +319,7 @@ In this section, we will prove that \texttt{Padding1} and \texttt{Padding3} are 
 
 \textit{Proof:} Recall in theorem \ref{thm frequency dist} we have shown that the distribution of the counts converges to $\mathcal{N}(\frac{n \cdot (p+1)}{k}, n \cdot s^2(j))$ for large $n$. But by construction of \texttt{Padding3}, $s^2(i) = s^2(j) \ \forall i,j$, so we can write the distribution as $\mathcal{N}(\frac{n \cdot (p+1)}{k}, n \cdot s^2)$ for some common variance $s^2$. The covariances between the attributes are equal by construction too. In this form, all parameters of the distribution are available in the public key so the adversary cannot infer anything unknown from the statistics of the database. Therefore, it is impossible to use statistical methods to identify plaintext-ciphertext pairs. $\square$
 
-\textbf{Discussion} The proof above would not work for the trivial encryption scheme. This is because the counts of the encrypted attributes can be modelled by deterministic variables $\xi_1, \cdots, \xi_n$, and these do depend on the count of the input attributes. So by learning these variables, one reveals information about the underlying plaintext.
+\textbf{Discussion} The proof above would not work for the trivial encryption scheme. This is because the counts of the encrypted attributes can be modelled by deterministic variables $\xi_1, \cdots, \xi_k$, and these do depend on the count of the input attributes. So by learning these variables, one reveals information about the underlying plaintext.
 
 
 

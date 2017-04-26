@@ -1,0 +1,47 @@
+\contentsline {chapter}{\numberline {1}Introduction}{4}{chapter.1}
+\contentsline {chapter}{\numberline {2}Literature on Property Preserving Encryption Schemes}{5}{chapter.2}
+\contentsline {section}{\numberline {2.1}Deterministic Encryption}{5}{section.2.1}
+\contentsline {subsection}{\numberline {2.1.1}Construction based on Hash function}{6}{subsection.2.1.1}
+\contentsline {subsection}{\numberline {2.1.2}Generalization of Previous Construction}{6}{subsection.2.1.2}
+\contentsline {subsection}{\numberline {2.1.3}Usefulness of Deterministic Encryption}{7}{subsection.2.1.3}
+\contentsline {subsection}{\numberline {2.1.4}Security of Deterministic Encryption}{8}{subsection.2.1.4}
+\contentsline {section}{\numberline {2.2}Original Construction of Deterministically Encrypted Database}{9}{section.2.2}
+\contentsline {section}{\numberline {2.3}Attack on Database Encrypted using Deterministic Encryption}{10}{section.2.3}
+\contentsline {subsection}{\numberline {2.3.1}Notation}{10}{subsection.2.3.1}
+\contentsline {subsection}{\numberline {2.3.2}Frequency Attack on the Column}{10}{subsection.2.3.2}
+\contentsline {section}{\numberline {2.4}Order-preserving Encryption}{11}{section.2.4}
+\contentsline {subsection}{\numberline {2.4.1}Constructions of Order-preserving Encryption}{11}{subsection.2.4.1}
+\contentsline {subsection}{\numberline {2.4.2}Security of OPE}{12}{subsection.2.4.2}
+\contentsline {section}{\numberline {2.5}Fully Homomorphic Encryption}{12}{section.2.5}
+\contentsline {section}{\numberline {2.6}Discussion}{13}{section.2.6}
+\contentsline {chapter}{\numberline {3}Efficient Encrypted Searchable Databases}{14}{chapter.3}
+\contentsline {section}{\numberline {3.1}Relational Database}{14}{section.3.1}
+\contentsline {section}{\numberline {3.2}Encrypted Relational Database}{15}{section.3.2}
+\contentsline {section}{\numberline {3.3}Constructions of Encryption Schemes on Relational Database}{16}{section.3.3}
+\contentsline {section}{\numberline {3.4}Full Padding Scheme}{16}{section.3.4}
+\contentsline {section}{\numberline {3.5}Fixed Padding Scheme 1}{17}{section.3.5}
+\contentsline {subsection}{\numberline {3.5.1}Notation}{17}{subsection.3.5.1}
+\contentsline {subsection}{\numberline {3.5.2}Choose $p$ and $\Pi _i$}{18}{subsection.3.5.2}
+\contentsline {subsection}{\numberline {3.5.3}Encryption Scheme}{19}{subsection.3.5.3}
+\contentsline {subsection}{\numberline {3.5.4}Variation to the Scheme}{19}{subsection.3.5.4}
+\contentsline {section}{\numberline {3.6}Fixed Padding Scheme 2}{20}{section.3.6}
+\contentsline {subsection}{\numberline {3.6.1}Mathematical Formulation}{20}{subsection.3.6.1}
+\contentsline {subsection}{\numberline {3.6.2}Statistically Indistinguishable Attributes}{20}{subsection.3.6.2}
+\contentsline {subsection}{\numberline {3.6.3}Finding the Minimum $p$}{21}{subsection.3.6.3}
+\contentsline {subsection}{\numberline {3.6.4}Solving the Optimization Problem}{22}{subsection.3.6.4}
+\contentsline {subsection}{\numberline {3.6.5}Encryption Scheme}{23}{subsection.3.6.5}
+\contentsline {section}{\numberline {3.7}Discussion}{23}{section.3.7}
+\contentsline {chapter}{\numberline {4}Security notions for Efficient Encrypted Searchable Database}{24}{chapter.4}
+\contentsline {section}{\numberline {4.1}Indistinguishability of distribution under chosen-plaintext attack (IND-DIST-CPA)}{25}{section.4.1}
+\contentsline {section}{\numberline {4.2}Indistinguishability of Ciphertext under Statistical Attack (IND-STAT)}{28}{section.4.2}
+\contentsline {subsection}{\numberline {4.2.1}IND-DIST-CPA and IND-STAT are not Comparable}{29}{subsection.4.2.1}
+\contentsline {subsection}{\numberline {4.2.2}Security Proofs}{35}{subsection.4.2.2}
+\contentsline {subsection}{\numberline {4.2.3}On the Assumption of Absence of Encryption Oracle of $DE$}{35}{subsection.4.2.3}
+\contentsline {section}{\numberline {4.3}Indistinguishability of distribution (IND-DIST)}{36}{section.4.3}
+\contentsline {chapter}{\numberline {5}Conclusion}{39}{chapter.5}
+\contentsline {section}{\numberline {5.1}Summary of Results}{39}{section.5.1}
+\contentsline {section}{\numberline {5.2}Practical Concerns with Proposed Encryption Schemes}{40}{section.5.2}
+\contentsline {section}{\numberline {5.3}Further Work}{40}{section.5.3}
+\contentsline {chapter}{\numberline {A}Proof of theorem \ref {thm frequency dist}}{45}{appendix.A}
+\contentsline {chapter}{\numberline {B}Justification of the claim in \ref {thm5}}{48}{appendix.B}
+\contentsline {chapter}{\numberline {C}Proof of Theorem \ref {thm lb on statistical distance}}{50}{appendix.C}
